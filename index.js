@@ -4,8 +4,8 @@
 // Uses Groq API (completely free, no credit card needed)
 // ============================================================
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // Add more webhook URLs here when ready to add group channels
 const WEBHOOKS = [
@@ -132,14 +132,16 @@ Return ONLY a raw JSON object, no markdown, no backticks, no explanation:
   "weeklyVolume": { "Mon": number, "Tue": number, "Wed": number, "Thu": number, "Fri": number, "Sat": number, "Sun": number }
 }`;
 
-  const res = await fetch(GROQ_URL, {
+  const res = await fetch(OPENROUTER_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${GROQ_API_KEY}`
+      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+      "HTTP-Referer": "https://github.com/kengjieteoh/my-travel-trends-bot",
+      "X-Title": "MY Travel Trends Bot"
     },
     body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
+      model: "meta-llama/llama-3.3-70b-instruct:free",
       messages: [
         { role: "system", content: "You are a Malaysian travel trends analyst. Always respond with raw JSON only, no markdown, no backticks." },
         { role: "user", content: prompt }
@@ -149,11 +151,11 @@ Return ONLY a raw JSON object, no markdown, no backticks, no explanation:
     })
   });
 
-  if (!res.ok) throw new Error(`Groq API error: ${res.status} ${await res.text()}`);
+  if (!res.ok) throw new Error(`OpenRouter API error: ${res.status} ${await res.text()}`);
   const json = await res.json();
   const text = json.choices?.[0]?.message?.content || "";
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("No JSON in Groq response");
+  if (!match) throw new Error("No JSON in OpenRouter response");
   return JSON.parse(match[0]);
 }
 
@@ -266,7 +268,7 @@ async function sendToLark(payload, webhook) {
 
 async function main() {
   console.log("🇲🇾 MY Travel Trends Bot starting...");
-  console.log("Key check:", GROQ_API_KEY ? `starts with ${GROQ_API_KEY.slice(0, 8)}` : "NOT FOUND - secret missing!");
+  console.log("Key check:", OPENROUTER_API_KEY ? `starts with ${OPENROUTER_API_KEY.slice(0, 10)}` : "NOT FOUND - secret missing!");
 
   const { label: weekLabel } = getWeekRange();
   const upcomingEvents = getUpcomingEvents(28);
