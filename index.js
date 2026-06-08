@@ -266,6 +266,7 @@ async function sendToLark(payload, webhook) {
 
 async function main() {
   console.log("🇲🇾 MY Travel Trends Bot starting...");
+  console.log("Key check:", GROQ_API_KEY ? `starts with ${GROQ_API_KEY.slice(0, 8)}` : "NOT FOUND - secret missing!");
 
   const { label: weekLabel } = getWeekRange();
   const upcomingEvents = getUpcomingEvents(28);
