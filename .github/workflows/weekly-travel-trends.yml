@@ -8,6 +8,9 @@ on:
     - cron: "0 1 * * 1"   # Every Monday 01:00 UTC (9:00 AM MYT)
   workflow_dispatch:        # Allow manual trigger for testing
 
+permissions:
+  contents: write           # Needed to commit data.json back to repo
+
 jobs:
   send-report:
     runs-on: ubuntu-latest
