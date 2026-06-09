@@ -1,5 +1,5 @@
 {
-  "summary": "Malaysians are actively searching for school holiday destinations this week, with family-friendly beaches and theme parks topping the list. Both domestic and international bookings are surging as families plan the mid-year break.",
+  "summary": "Malaysians are actively searching for school holiday destinations, with family-friendly beaches and theme parks topping the list. Both domestic and international bookings are surging as families plan the break.",
   "domesticShare": 42,
   "internationalShare": 58,
   "topKeyword": "school holiday package",
@@ -7,9 +7,57 @@
   "topActivity": "Snorkelling tour",
   "domestic": [
     {
-      "destination": "Penang",
-      "state": "Penang",
-      "category": "city",
+      "destination": "Genting Highlands",
+      "state": "Pahang",
+      "category": "theme park",
+      "peak": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        11,
+        12
+      ],
+      "offpeak": [
+        4,
+        9,
+        10
+      ],
+      "score": 106,
+      "change": 29,
+      "volume": 106,
+      "reason": "School holiday family travel — popular theme park destination"
+    },
+    {
+      "destination": "Sabah",
+      "state": "Sabah",
+      "category": "nature",
+      "peak": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "offpeak": [
+        1,
+        2,
+        11,
+        12
+      ],
+      "score": 105,
+      "change": 34,
+      "volume": 105,
+      "reason": "School holiday family travel — popular nature destination"
+    },
+    {
+      "destination": "Cameron Highlands",
+      "state": "Pahang",
+      "category": "nature",
       "peak": [
         1,
         2,
@@ -25,35 +73,10 @@
         12
       ],
       "offpeak": [],
-      "score": 105,
-      "change": 39,
-      "reason": "School holiday season driving family search surge — popular city destination",
-      "volume": 105
-    },
-    {
-      "destination": "Kota Kinabalu",
-      "state": "Sabah",
-      "category": "beach",
-      "peak": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9
-      ],
-      "offpeak": [
-        1,
-        2,
-        10,
-        11,
-        12
-      ],
       "score": 104,
-      "change": 16,
-      "reason": "School holiday season driving family search surge — popular beach destination",
-      "volume": 104
+      "change": 24,
+      "volume": 104,
+      "reason": "School holiday family travel — popular nature destination"
     },
     {
       "destination": "Johor Bahru",
@@ -75,39 +98,14 @@
       ],
       "offpeak": [],
       "score": 103,
-      "change": 27,
-      "reason": "School holiday season driving family search surge — popular city destination",
-      "volume": 103
+      "change": 44,
+      "volume": 103,
+      "reason": "School holiday family travel — popular city destination"
     },
     {
-      "destination": "Kuching",
-      "state": "Sarawak",
+      "destination": "Melaka",
+      "state": "Melaka",
       "category": "heritage",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8
-      ],
-      "offpeak": [
-        9,
-        10,
-        11,
-        12
-      ],
-      "score": 103,
-      "change": 20,
-      "reason": "School holiday season driving family search surge — popular heritage destination",
-      "volume": 103
-    },
-    {
-      "destination": "Cameron Highlands",
-      "state": "Pahang",
-      "category": "nature",
       "peak": [
         1,
         2,
@@ -123,39 +121,13 @@
         12
       ],
       "offpeak": [],
-      "score": 99,
-      "change": -4,
-      "reason": "School holiday season driving family search surge — popular nature destination",
-      "volume": 99
+      "score": 102,
+      "change": -3,
+      "volume": 102,
+      "reason": "School holiday family travel — popular heritage destination"
     }
   ],
   "international": [
-    {
-      "destination": "Istanbul",
-      "country": "Turkey",
-      "countryCode": "TR",
-      "category": "culture",
-      "peak": [
-        4,
-        5,
-        6,
-        9,
-        10,
-        11
-      ],
-      "offpeak": [
-        1,
-        2,
-        3,
-        7,
-        8,
-        12
-      ],
-      "score": 99,
-      "change": 19,
-      "reason": "School holiday season driving family search surge — trending culture destination",
-      "volume": 99
-    },
     {
       "destination": "Bali",
       "country": "Indonesia",
@@ -177,10 +149,10 @@
         4,
         5
       ],
-      "score": 95,
-      "change": 13,
-      "reason": "School holiday season driving family search surge — trending beach destination",
-      "volume": 95
+      "score": 107,
+      "change": 26,
+      "volume": 107,
+      "reason": "Holiday season demand — popular beach destination"
     },
     {
       "destination": "Singapore",
@@ -202,36 +174,36 @@
         12
       ],
       "offpeak": [],
-      "score": 93,
-      "change": 29,
-      "reason": "School holiday season driving family search surge — trending city destination",
-      "volume": 93
+      "score": 104,
+      "change": 12,
+      "volume": 104,
+      "reason": "Holiday season demand — popular city destination"
     },
     {
-      "destination": "Ho Chi Minh City",
-      "country": "Vietnam",
-      "countryCode": "VN",
-      "category": "city",
+      "destination": "Istanbul",
+      "country": "Turkey",
+      "countryCode": "TR",
+      "category": "culture",
       "peak": [
-        12,
-        1,
-        2,
-        3,
         4,
-        5
-      ],
-      "offpeak": [
+        5,
         6,
-        7,
-        8,
         9,
         10,
         11
       ],
-      "score": 60,
+      "offpeak": [
+        1,
+        2,
+        3,
+        7,
+        8,
+        12
+      ],
+      "score": 92,
       "change": 18,
-      "reason": "School holiday season driving family search surge — trending city destination",
-      "volume": 60
+      "volume": 92,
+      "reason": "Holiday season demand — popular culture destination"
     },
     {
       "destination": "Seoul",
@@ -254,10 +226,36 @@
         8,
         12
       ],
-      "score": 51,
-      "change": -7,
-      "reason": "School holiday season driving family search surge — trending city destination",
-      "volume": 51
+      "score": 64,
+      "change": 33,
+      "volume": 64,
+      "reason": "Holiday season demand — popular city destination"
+    },
+    {
+      "destination": "Tokyo",
+      "country": "Japan",
+      "countryCode": "JP",
+      "category": "city",
+      "peak": [
+        3,
+        4,
+        5,
+        9,
+        10,
+        11
+      ],
+      "offpeak": [
+        1,
+        2,
+        6,
+        7,
+        8,
+        12
+      ],
+      "score": 60,
+      "change": -6,
+      "volume": 60,
+      "reason": "Holiday season demand — popular city destination"
     }
   ],
   "domesticActivities": [
@@ -274,8 +272,8 @@
         9
       ],
       "score": 80,
-      "change": 37,
-      "volume": 65
+      "change": 32,
+      "volume": 62
     },
     {
       "name": "Mt. Kinabalu climb",
@@ -289,11 +287,11 @@
         8
       ],
       "score": 80,
-      "change": 11,
-      "volume": 56
+      "change": 37,
+      "volume": 79
     },
     {
-      "name": "Penang food walking tour",
+      "name": "Penang food walk",
       "location": "George Town",
       "peak": [
         1,
@@ -310,8 +308,8 @@
         12
       ],
       "score": 80,
-      "change": 12,
-      "volume": 77
+      "change": 26,
+      "volume": 73
     }
   ],
   "internationalActivities": [
@@ -330,8 +328,8 @@
         12
       ],
       "score": 80,
-      "change": 36,
-      "volume": 71
+      "change": 35,
+      "volume": 82
     },
     {
       "name": "Bali rice terrace cycling",
@@ -344,8 +342,8 @@
         10
       ],
       "score": 80,
-      "change": 23,
-      "volume": 60
+      "change": 14,
+      "volume": 51
     },
     {
       "name": "Harajuku street food tour",
@@ -361,10 +359,22 @@
         10
       ],
       "score": 80,
-      "change": 24,
-      "volume": 85
+      "change": 17,
+      "volume": 83
     }
   ],
+  "domCategories": {
+    "Beach": 82,
+    "Nature": 65,
+    "City": 48,
+    "Heritage": 31
+  },
+  "intlCategories": {
+    "City": 78,
+    "Culture": 61,
+    "Beach": 44,
+    "Theme Park": 22
+  },
   "hotKeywords": [
     "school holiday package",
     "family trip",
@@ -375,6 +385,27 @@
     "budget family travel",
     "resort booking"
   ],
+  "liveInsights": [
+    {
+      "headline": "Malaysia's East Coast bookings surge 40% QoQ — Kuala Terengganu leads with 60% growth",
+      "source": "Zafigo",
+      "url": "https://zafigo.com/news/malaysia-east-coast-domestic-travel-boom-2026/",
+      "impact": "East Coast domestic travel significantly outperforming traditional hotspots"
+    },
+    {
+      "headline": "Malaysian Gen Z plans 4–6 trips/year in 2026, favouring communal travel",
+      "source": "Agoda Travel Outlook",
+      "url": "https://www.travelandtourworld.com",
+      "impact": "Higher travel frequency driving weekend & short-break searches"
+    },
+    {
+      "headline": "Japan travel surging — Malaysians exploring beyond Tokyo into Kyushu & Tohoku",
+      "source": "Diper Tour Analysis",
+      "url": "https://natlawreview.com/press-releases/diper-tour-analysis-travel-trends-malaysians-planning-japan-trips-2026",
+      "impact": "Japan search volume up, shift toward regional experiences"
+    }
+  ],
+  "dataSource": "calendar",
   "weekLabel": "1 Jun 2026 – 7 Jun 2026",
   "upcomingEvents": [
     {
@@ -385,5 +416,5 @@
       "daysAway": 8
     }
   ],
-  "updatedAt": "2026-06-09T06:20:26.701Z"
+  "updatedAt": "2026-06-09T09:58:07.957Z"
 }
