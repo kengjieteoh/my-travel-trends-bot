@@ -309,6 +309,18 @@ function buildLarkCard(data, weekLabel, upcomingEvents) {
 // SEND TO LARK
 // ============================================================
 
+// ============================================================
+// SAVE data.json for GitHub Pages dashboard
+// ============================================================
+
+const fs = require("fs");
+
+function saveDataJson(trends, weekLabel, upcomingEvents) {
+  const payload = { ...trends, weekLabel, upcomingEvents, updatedAt: new Date().toISOString() };
+  fs.writeFileSync("data.json", JSON.stringify(payload, null, 2));
+  console.log("✅ data.json saved");
+}
+
 async function sendToLark(payload, webhook) {
   const res = await fetch(webhook, {
     method: "POST",
@@ -334,6 +346,8 @@ async function main() {
 
   const trends = generateTrends(start, upcomingEvents);
   console.log("✅ Trends generated from calendar data");
+
+  saveDataJson(trends, weekLabel, upcomingEvents);
 
   const card = buildLarkCard(trends, weekLabel, upcomingEvents);
 
