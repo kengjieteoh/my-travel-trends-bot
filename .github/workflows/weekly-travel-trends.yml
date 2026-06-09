@@ -22,6 +22,4 @@ jobs:
           node-version: "22"
 
       - name: Run travel trends bot
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: node index.js
