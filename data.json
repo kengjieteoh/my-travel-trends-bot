@@ -1,0 +1,389 @@
+{
+  "summary": "Malaysians are actively searching for school holiday destinations this week, with family-friendly beaches and theme parks topping the list. Both domestic and international bookings are surging as families plan the mid-year break.",
+  "domesticShare": 42,
+  "internationalShare": 58,
+  "topKeyword": "school holiday package",
+  "topAttraction": "Universal Studios Singapore",
+  "topActivity": "Snorkelling tour",
+  "domestic": [
+    {
+      "destination": "Penang",
+      "state": "Penang",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 105,
+      "change": 39,
+      "reason": "School holiday season driving family search surge — popular city destination",
+      "volume": 105
+    },
+    {
+      "destination": "Kota Kinabalu",
+      "state": "Sabah",
+      "category": "beach",
+      "peak": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "offpeak": [
+        1,
+        2,
+        10,
+        11,
+        12
+      ],
+      "score": 104,
+      "change": 16,
+      "reason": "School holiday season driving family search surge — popular beach destination",
+      "volume": 104
+    },
+    {
+      "destination": "Johor Bahru",
+      "state": "Johor",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 103,
+      "change": 27,
+      "reason": "School holiday season driving family search surge — popular city destination",
+      "volume": 103
+    },
+    {
+      "destination": "Kuching",
+      "state": "Sarawak",
+      "category": "heritage",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "offpeak": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "score": 103,
+      "change": 20,
+      "reason": "School holiday season driving family search surge — popular heritage destination",
+      "volume": 103
+    },
+    {
+      "destination": "Cameron Highlands",
+      "state": "Pahang",
+      "category": "nature",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 99,
+      "change": -4,
+      "reason": "School holiday season driving family search surge — popular nature destination",
+      "volume": 99
+    }
+  ],
+  "international": [
+    {
+      "destination": "Istanbul",
+      "country": "Turkey",
+      "countryCode": "TR",
+      "category": "culture",
+      "peak": [
+        4,
+        5,
+        6,
+        9,
+        10,
+        11
+      ],
+      "offpeak": [
+        1,
+        2,
+        3,
+        7,
+        8,
+        12
+      ],
+      "score": 99,
+      "change": 19,
+      "reason": "School holiday season driving family search surge — trending culture destination",
+      "volume": 99
+    },
+    {
+      "destination": "Bali",
+      "country": "Indonesia",
+      "countryCode": "ID",
+      "category": "beach",
+      "peak": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "score": 95,
+      "change": 13,
+      "reason": "School holiday season driving family search surge — trending beach destination",
+      "volume": 95
+    },
+    {
+      "destination": "Singapore",
+      "country": "Singapore",
+      "countryCode": "SG",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 93,
+      "change": 29,
+      "reason": "School holiday season driving family search surge — trending city destination",
+      "volume": 93
+    },
+    {
+      "destination": "Ho Chi Minh City",
+      "country": "Vietnam",
+      "countryCode": "VN",
+      "category": "city",
+      "peak": [
+        12,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offpeak": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "score": 60,
+      "change": 18,
+      "reason": "School holiday season driving family search surge — trending city destination",
+      "volume": 60
+    },
+    {
+      "destination": "Seoul",
+      "country": "South Korea",
+      "countryCode": "KR",
+      "category": "city",
+      "peak": [
+        3,
+        4,
+        5,
+        9,
+        10,
+        11
+      ],
+      "offpeak": [
+        1,
+        2,
+        6,
+        7,
+        8,
+        12
+      ],
+      "score": 51,
+      "change": -7,
+      "reason": "School holiday season driving family search surge — trending city destination",
+      "volume": 51
+    }
+  ],
+  "domesticActivities": [
+    {
+      "name": "Snorkelling tour",
+      "location": "Pulau Perhentian",
+      "peak": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "score": 80,
+      "change": 37,
+      "volume": 65
+    },
+    {
+      "name": "Mt. Kinabalu climb",
+      "location": "Sabah",
+      "peak": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "score": 80,
+      "change": 11,
+      "volume": 56
+    },
+    {
+      "name": "Penang food walking tour",
+      "location": "George Town",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "score": 80,
+      "change": 12,
+      "volume": 77
+    }
+  ],
+  "internationalActivities": [
+    {
+      "name": "Universal Studios Singapore",
+      "location": "Singapore",
+      "peak": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        11,
+        12
+      ],
+      "score": 80,
+      "change": 36,
+      "volume": 71
+    },
+    {
+      "name": "Bali rice terrace cycling",
+      "location": "Ubud, Bali",
+      "peak": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "score": 80,
+      "change": 23,
+      "volume": 60
+    },
+    {
+      "name": "Harajuku street food tour",
+      "location": "Tokyo, Japan",
+      "peak": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "score": 80,
+      "change": 24,
+      "volume": 85
+    }
+  ],
+  "hotKeywords": [
+    "school holiday package",
+    "family trip",
+    "theme park",
+    "beach holiday",
+    "island hopping",
+    "kids activities",
+    "budget family travel",
+    "resort booking"
+  ],
+  "weekLabel": "1 Jun 2026 – 7 Jun 2026",
+  "upcomingEvents": [
+    {
+      "name": "Awal Muharam",
+      "date": "2026-06-17",
+      "season": "hijrah",
+      "kind": "public_holiday",
+      "daysAway": 8
+    }
+  ],
+  "updatedAt": "2026-06-09T06:20:26.701Z"
+}
