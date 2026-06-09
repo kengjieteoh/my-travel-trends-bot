@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🇲🇾 Malaysia Weekly Travel Trends</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #F4F6F9; color: #1a1a2e; min-height: 100vh; }
+
+    /* HEADER */
+    .header { background: #1456F0; color: #fff; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-avatar { width: 44px; height: 44px; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .header-title { font-size: 18px; font-weight: 600; }
+    .header-sub { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .week-badge { background: rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 12px; font-size: 13px; }
+    .refresh-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 8px; padding: 6px 14px; font-size: 12px; cursor: pointer; }
+    .refresh-btn:hover { background: rgba(255,255,255,0.25); }
+
+    /* BODY */
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+
+    /* SUMMARY */
+    .summary-box { background: #fff; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; border-left: 4px solid #1456F0; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .summary-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+    .summary-text { font-size: 14px; color: #333; line-height: 1.65; }
+
+    /* KPI ROW */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .kpi { background: #fff; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .kpi-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+    .kpi-value { font-size: 24px; font-weight: 600; }
+
+    /* SECTION LABEL */
+    .section-label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+
+    /* SPLIT PANEL */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .panel { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .panel-header { padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+    .panel-header.dom { background: #E1F5EE; }
+    .panel-header.intl { background: #E6F1FB; }
+    .panel-title { font-size: 13px; font-weight: 600; }
+    .panel-title.dom { color: #085041; }
+    .panel-title.intl { color: #0C447C; }
+    .panel-share { font-size: 12px; margin-left: auto; font-weight: 500; }
+    .panel-share.dom { color: #0F6E56; }
+    .panel-share.intl { color: #185FA5; }
+    .panel-body { padding: 10px 14px; }
+
+    /* TREND ROWS */
+    .trend-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #f0f0f0; }
+    .trend-row:last-child { border-bottom: none; }
+    .trend-flag { font-size: 18px; line-height: 1; }
+    .trend-info { flex: 1; min-width: 0; }
+    .trend-name { font-size: 13px; font-weight: 500; color: #1a1a2e; }
+    .trend-why { font-size: 11px; color: #888; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chip-up { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: #EAF3DE; color: #3B6D11; white-space: nowrap; }
+    .chip-dn { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: #FCEBEB; color: #A32D2D; white-space: nowrap; }
+
+    /* CATEGORY BARS */
+    .cat-section { margin-top: 12px; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+    .cat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .cat-name { font-size: 11px; color: #666; width: 70px; flex-shrink: 0; }
+    .cat-track { flex: 1; height: 5px; border-radius: 3px; background: #f0f0f0; overflow: hidden; }
+    .cat-fill-dom { height: 100%; border-radius: 3px; background: #1D9E75; }
+    .cat-fill-intl { height: 100%; border-radius: 3px; background: #378ADD; }
+    .cat-pct { font-size: 11px; color: #aaa; width: 28px; text-align: right; }
+
+    /* ACTIVITIES GRID */
+    .act-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .act-card { background: #fff; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .act-tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; display: inline-block; margin-bottom: 7px; }
+    .act-name { font-size: 13px; font-weight: 500; color: #1a1a2e; margin-bottom: 2px; }
+    .act-loc { font-size: 11px; color: #888; margin-bottom: 6px; }
+    .act-row { display: flex; align-items: center; justify-content: space-between; }
+    .vol-bar-wrap { width: 60px; height: 4px; border-radius: 2px; background: #f0f0f0; overflow: hidden; }
+    .vol-bar-fill { height: 100%; border-radius: 2px; }
+
+    /* EVENTS */
+    .events-box { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .event-row { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid #f0f0f0; }
+    .event-row:last-child { border-bottom: none; }
+    .event-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+    .event-name { font-size: 13px; font-weight: 500; color: #1a1a2e; }
+    .event-meta { font-size: 11px; color: #888; margin-top: 2px; }
+    .event-badge { font-size: 10px; padding: 1px 7px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+
+    /* KEYWORDS */
+    .keywords-box { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .kw-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .kw { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #F4F6F9; color: #555; border: 1px solid #e8e8e8; }
+
+    /* SOURCES */
+    .sources-box { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .source-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+    .source-row:last-child { border-bottom: none; }
+    .source-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .source-info { flex: 1; }
+    .source-name { font-size: 13px; font-weight: 500; color: #1a1a2e; }
+    .source-desc { font-size: 11px; color: #888; margin-top: 2px; line-height: 1.4; }
+    .source-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .source-chip { font-size: 10px; padding: 1px 7px; border-radius: 999px; background: #F4F6F9; color: #777; border: 1px solid #e8e8e8; }
+
+    /* FOOTER */
+    .footer { text-align: center; font-size: 11px; color: #aaa; padding: 16px 0 24px; }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 80px 0; color: #888; font-size: 14px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+      .split { grid-template-columns: 1fr; }
+      .act-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-avatar">🇲🇾</div>
+    <div>
+      <div class="header-title">Malaysia Weekly Travel Trends</div>
+      <div class="header-sub">Domestic & International · Updated every Monday 9:00 AM MYT</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="week-badge" id="week-label">Loading...</div>
+    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="content" class="loading">Loading travel trends data...</div>
+</div>
+
+<script>
+const flag = c => ({MY:"🇲🇾",TH:"🇹🇭",JP:"🇯🇵",KR:"🇰🇷",ID:"🇮🇩",SG:"🇸🇬",CN:"🇨🇳",VN:"🇻🇳",TR:"🇹🇷",AE:"🇦🇪"}[c]||"🌍");
+const chip = v => v >= 0
+  ? `<span class="chip-up">▲ ${Math.abs(v)}%</span>`
+  : `<span class="chip-dn">▼ ${Math.abs(v)}%</span>`;
+
+function render(d) {
+  document.getElementById("week-label").textContent = `📅 ${d.weekLabel}`;
+
+  const domRows = (d.domestic||[]).slice(0,5).map(t => `
+    <div class="trend-row">
+      <span class="trend-flag">${flag("MY")}</span>
+      <div class="trend-info">
+        <div class="trend-name">${t.destination} <span style="font-size:11px;color:#aaa">(${t.state})</span></div>
+        <div class="trend-why">${t.reason}</div>
+      </div>
+      ${chip(t.change)}
+    </div>`).join("");
+
+  const intlRows = (d.international||[]).slice(0,5).map(t => `
+    <div class="trend-row">
+      <span class="trend-flag">${flag(t.countryCode)}</span>
+      <div class="trend-info">
+        <div class="trend-name">${t.destination} <span style="font-size:11px;color:#aaa">${t.country}</span></div>
+        <div class="trend-why">${t.reason}</div>
+      </div>
+      ${chip(t.change)}
+    </div>`).join("");
+
+  const domCats = Object.entries(d.domCategories||{}).map(([k,v]) => `
+    <div class="cat-row">
+      <span class="cat-name">${k}</span>
+      <div class="cat-track"><div class="cat-fill-dom" style="width:${v}%"></div></div>
+      <span class="cat-pct">${v}%</span>
+    </div>`).join("");
+
+  const intlCats = Object.entries(d.intlCategories||{}).map(([k,v]) => `
+    <div class="cat-row">
+      <span class="cat-name">${k}</span>
+      <div class="cat-track"><div class="cat-fill-intl" style="width:${v}%"></div></div>
+      <span class="cat-pct">${v}%</span>
+    </div>`).join("");
+
+  const domActs = (d.domesticActivities||[]).slice(0,4).map(a => `
+    <div class="act-card">
+      <span class="act-tag" style="background:#E1F5EE;color:#085041">🏠 Domestic</span>
+      <div class="act-name">${a.name}</div>
+      <div class="act-loc">${a.location}</div>
+      <div class="act-row">
+        ${chip(a.change)}
+        <div class="vol-bar-wrap"><div class="vol-bar-fill" style="width:${a.volume}%;background:#1D9E75"></div></div>
+      </div>
+    </div>`).join("");
+
+  const intlActs = (d.internationalActivities||[]).slice(0,4).map(a => `
+    <div class="act-card">
+      <span class="act-tag" style="background:#E6F1FB;color:#0C447C">✈️ International</span>
+      <div class="act-name">${a.name}</div>
+      <div class="act-loc">${a.location}</div>
+      <div class="act-row">
+        ${chip(a.change)}
+        <div class="vol-bar-wrap"><div class="vol-bar-fill" style="width:${a.volume}%;background:#378ADD"></div></div>
+      </div>
+    </div>`).join("");
+
+  const evRows = (d.upcomingEvents||[]).map(e => {
+    const isHol = e.kind === "public_holiday";
+    const dot = isHol ? "#7F77DD" : "#1D9E75";
+    const badge = isHol
+      ? `<span class="event-badge" style="background:#EEEDFE;color:#3C3489">public holiday</span>`
+      : `<span class="event-badge" style="background:#E1F5EE;color:#085041">school break</span>`;
+    const meta = isHol ? `${e.date} · in ${e.daysAway} days` : `${e.start} – ${e.end}`;
+    return `
+    <div class="event-row">
+      <div class="event-dot" style="background:${dot}"></div>
+      <div>
+        <span class="event-name">${e.name}</span>${badge}
+        <div class="event-meta">${meta}</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  const kws = (d.hotKeywords||[]).map(k => `<span class="kw">${k}</span>`).join("");
+
+  document.getElementById("content").innerHTML = `
+    <div class="summary-box">
+      <div class="summary-label">This week's travel mood</div>
+      <div class="summary-text">${d.summary}</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">Domestic share</div><div class="kpi-value" style="color:#0F6E56">${d.domesticShare}%</div></div>
+      <div class="kpi"><div class="kpi-label">International share</div><div class="kpi-value" style="color:#185FA5">${d.internationalShare}%</div></div>
+      <div class="kpi"><div class="kpi-label">Top keyword</div><div class="kpi-value" style="font-size:15px;padding-top:5px">${d.topKeyword||"—"}</div></div>
+      <div class="kpi"><div class="kpi-label">Top activity</div><div class="kpi-value" style="font-size:15px;padding-top:5px">${d.topActivity||"—"}</div></div>
+    </div>
+
+    <div class="section-label">Trending destinations</div>
+    <div class="split">
+      <div class="panel">
+        <div class="panel-header dom">
+          <span style="font-size:16px">🏠</span>
+          <span class="panel-title dom">Domestic</span>
+          <span class="panel-share dom">${d.domesticShare}% share</span>
+        </div>
+        <div class="panel-body">
+          ${domRows}
+          <div class="cat-section">
+            <div class="section-label">Categories</div>
+            ${domCats}
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header intl">
+          <span style="font-size:16px">✈️</span>
+          <span class="panel-title intl">International</span>
+          <span class="panel-share intl">${d.internationalShare}% share</span>
+        </div>
+        <div class="panel-body">
+          ${intlRows}
+          <div class="cat-section">
+            <div class="section-label">Categories</div>
+            ${intlCats}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Trending attractions & activities</div>
+    <div class="act-grid">${domActs}${intlActs}</div>
+
+    <div class="events-box">
+      <div class="section-label">Upcoming demand drivers</div>
+      ${evRows || "<div style='font-size:13px;color:#aaa;padding:8px 0'>No major events in the next 4 weeks</div>"}
+    </div>
+
+    <div class="keywords-box">
+      <div class="section-label">Hot search keywords</div>
+      <div class="kw-wrap">${kws}</div>
+    </div>
+
+    <div class="sources-box">
+      <div class="section-label">Data sources</div>
+      <div class="source-row">
+        <div class="source-icon" style="background:#E8F0FE">📅</div>
+        <div class="source-info">
+          <div class="source-name">JPM Federal Holiday Calendar 2026</div>
+          <div class="source-desc">Official Malaysian federal public holidays from Jabatan Perdana Menteri.</div>
+          <div class="source-chips"><span class="source-chip">Public holidays</span><span class="source-chip">Demand drivers</span></div>
+        </div>
+      </div>
+      <div class="source-row">
+        <div class="source-icon" style="background:#E6F9F1">🏫</div>
+        <div class="source-info">
+          <div class="source-name">MOE Academic Calendar 2026</div>
+          <div class="source-desc">School term dates from Surat Siaran KPM Bil.3 2025 (Ministry of Education Malaysia).</div>
+          <div class="source-chips"><span class="source-chip">School breaks</span><span class="source-chip">Family travel patterns</span></div>
+        </div>
+      </div>
+      <div class="source-row">
+        <div class="source-icon" style="background:#FFF3E0">📈</div>
+        <div class="source-info">
+          <div class="source-name">Seasonal travel patterns</div>
+          <div class="source-desc">Malaysian travel behaviour models based on monsoon seasons, holiday patterns, and regional trends.</div>
+          <div class="source-chips"><span class="source-chip">Destination rankings</span><span class="source-chip">Activity trends</span><span class="source-chip">Search volume</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">Auto-generated by MY Travel Trends Bot · Week of ${d.weekLabel} · Updates every Monday 9:00 AM MYT</div>
+  `;
+}
+
+async function loadData() {
+  try {
+    const res = await fetch("data.json?t=" + Date.now());
+    if (!res.ok) throw new Error("data.json not found");
+    const data = await res.json();
+    render(data);
+  } catch(e) {
+    document.getElementById("content").innerHTML = `
+      <div style="text-align:center;padding:60px 0;color:#888">
+        <div style="font-size:32px;margin-bottom:12px">📭</div>
+        <div style="font-size:15px;font-weight:500;margin-bottom:6px">No data yet</div>
+        <div style="font-size:13px">The bot hasn't run yet. It will generate data.json on the next Monday run.</div>
+      </div>`;
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
