@@ -7,29 +7,29 @@
   "topActivity": "Snorkelling tour",
   "domestic": [
     {
-      "destination": "Genting Highlands",
-      "state": "Pahang",
-      "category": "theme park",
+      "destination": "Kuching",
+      "state": "Sarawak",
+      "category": "heritage",
       "peak": [
         1,
         2,
         3,
+        4,
         5,
         6,
         7,
-        8,
+        8
+      ],
+      "offpeak": [
+        9,
+        10,
         11,
         12
       ],
-      "offpeak": [
-        4,
-        9,
-        10
-      ],
-      "score": 88,
-      "change": 26,
-      "volume": 88,
-      "reason": "Seasonal peak — popular theme park destination"
+      "score": 89,
+      "change": 38,
+      "volume": 89,
+      "reason": "Seasonal peak — popular heritage destination"
     },
     {
       "destination": "Melaka",
@@ -51,9 +51,33 @@
       ],
       "offpeak": [],
       "score": 88,
-      "change": 8,
+      "change": 32,
       "volume": 88,
       "reason": "Seasonal peak — popular heritage destination"
+    },
+    {
+      "destination": "Penang",
+      "state": "Penang",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 87,
+      "change": 35,
+      "volume": 87,
+      "reason": "Seasonal peak — popular city destination"
     },
     {
       "destination": "Kota Kinabalu",
@@ -75,18 +99,16 @@
         11,
         12
       ],
-      "score": 86,
+      "score": 87,
       "change": 34,
-      "volume": 86,
+      "volume": 87,
       "reason": "Seasonal peak — popular beach destination"
     },
     {
-      "destination": "Kuching",
-      "state": "Sarawak",
-      "category": "heritage",
+      "destination": "Sabah",
+      "state": "Sabah",
+      "category": "nature",
       "peak": [
-        1,
-        2,
         3,
         4,
         5,
@@ -95,40 +117,15 @@
         8
       ],
       "offpeak": [
-        9,
-        10,
+        1,
+        2,
         11,
         12
       ],
-      "score": 84,
-      "change": 17,
-      "volume": 84,
-      "reason": "Seasonal peak — popular heritage destination"
-    },
-    {
-      "destination": "Kuala Terengganu",
-      "state": "Terengganu",
-      "category": "heritage",
-      "peak": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9
-      ],
-      "offpeak": [
-        10,
-        11,
-        12,
-        1,
-        2
-      ],
-      "score": 84,
+      "score": 80,
       "change": -2,
-      "volume": 84,
-      "reason": "Seasonal peak — popular heritage destination"
+      "volume": 80,
+      "reason": "Seasonal peak — popular nature destination"
     }
   ],
   "international": [
@@ -153,9 +150,9 @@
         8,
         12
       ],
-      "score": 84,
-      "change": 24,
-      "volume": 84,
+      "score": 89,
+      "change": 13,
+      "volume": 89,
       "reason": "Trending — popular culture destination"
     },
     {
@@ -178,9 +175,9 @@
         12
       ],
       "offpeak": [],
-      "score": 81,
-      "change": -5,
-      "volume": 81,
+      "score": 87,
+      "change": 33,
+      "volume": 87,
       "reason": "Trending — popular city destination"
     },
     {
@@ -204,13 +201,39 @@
         4,
         5
       ],
-      "score": 72,
-      "change": 5,
-      "volume": 72,
+      "score": 73,
+      "change": 20,
+      "volume": 73,
       "reason": "Trending — popular beach destination"
     },
     {
-      "destination": "Tokyo",
+      "destination": "Seoul",
+      "country": "South Korea",
+      "countryCode": "KR",
+      "category": "city",
+      "peak": [
+        3,
+        4,
+        5,
+        9,
+        10,
+        11
+      ],
+      "offpeak": [
+        1,
+        2,
+        6,
+        7,
+        8,
+        12
+      ],
+      "score": 38,
+      "change": 13,
+      "volume": 38,
+      "reason": "Trending — popular city destination"
+    },
+    {
+      "destination": "Osaka",
       "country": "Japan",
       "countryCode": "JP",
       "category": "city",
@@ -230,35 +253,9 @@
         8,
         12
       ],
-      "score": 43,
-      "change": 34,
-      "volume": 43,
-      "reason": "Trending — popular city destination"
-    },
-    {
-      "destination": "Ho Chi Minh City",
-      "country": "Vietnam",
-      "countryCode": "VN",
-      "category": "city",
-      "peak": [
-        12,
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
-      "offpeak": [
-        6,
-        7,
-        8,
-        9,
-        10,
-        11
-      ],
-      "score": 42,
-      "change": -7,
-      "volume": 42,
+      "score": 34,
+      "change": -4,
+      "volume": 34,
       "reason": "Trending — popular city destination"
     }
   ],
@@ -276,7 +273,7 @@
         9
       ],
       "score": 80,
-      "change": 26,
+      "change": 17,
       "volume": 55
     },
     {
@@ -291,8 +288,8 @@
         8
       ],
       "score": 80,
-      "change": 20,
-      "volume": 80
+      "change": 15,
+      "volume": 72
     },
     {
       "name": "Penang food walk",
@@ -312,8 +309,8 @@
         12
       ],
       "score": 80,
-      "change": 13,
-      "volume": 70
+      "change": 39,
+      "volume": 77
     }
   ],
   "internationalActivities": [
@@ -332,8 +329,8 @@
         12
       ],
       "score": 80,
-      "change": 43,
-      "volume": 51
+      "change": 31,
+      "volume": 52
     },
     {
       "name": "Bali rice terrace cycling",
@@ -346,8 +343,8 @@
         10
       ],
       "score": 80,
-      "change": 41,
-      "volume": 61
+      "change": 10,
+      "volume": 75
     },
     {
       "name": "Harajuku street food tour",
@@ -363,8 +360,8 @@
         10
       ],
       "score": 80,
-      "change": 34,
-      "volume": 79
+      "change": 38,
+      "volume": 60
     }
   ],
   "domCategories": {
@@ -421,5 +418,5 @@
     }
   ],
   "companyData": null,
-  "updatedAt": "2026-06-15T08:47:35.178Z"
+  "updatedAt": "2026-06-15T08:49:47.041Z"
 }
