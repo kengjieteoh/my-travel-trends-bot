@@ -22,14 +22,35 @@ const WEBHOOKS = [
 // ============================================================
 
 const TABLEAU_CONFIG = {
-  server:    process.env.TABLEAU_SERVER    || "https://your-tableau-server.com",
-  site:      process.env.TABLEAU_SITE      || "",          // "" = default site
+  server:    process.env.TABLEAU_SERVER    || "https://tableau.klook.io",
+  site:      process.env.TABLEAU_SITE      || "klook",     // contentUrl
   patName:   process.env.TABLEAU_PAT_NAME  || "",          // Personal Access Token name
   patSecret: process.env.TABLEAU_PAT_SECRET|| "",          // Personal Access Token secret
-  // Target view to pull company travel data from:
-  // Set ONE of these — viewId is faster if you know it, viewName is easier to read
-  viewId:    process.env.TABLEAU_VIEW_ID   || "",          // e.g. "abc123-def456"
-  viewName:  process.env.TABLEAU_VIEW_NAME || "Travel Bookings Overview", // fallback search name
+
+  // The two split views (IDs taken from the dashboard URLs)
+  views: {
+    domestic:    process.env.TABLEAU_VIEW_DOMESTIC    || "6a629e4b-6abd-4f16-83a6-083ac77b86aa",
+    crossBorder: process.env.TABLEAU_VIEW_CROSSBORDER || "cfe93ddc-364f-42d5-add5-fae59e4772e3",
+  },
+
+  // ── FILTER NAMES (must match Tableau exactly — edit here if a pull returns wrong/empty data) ──
+  filters: {
+    residencyField: "User Residency Country",
+    residencyValue: "MY",
+    startDateField: "Start Date",
+    endDateField:   "End Date",
+    comparisonField: "Comparison",
+    comparisonValue: "WoW",            // "week before" — confirm the exact dropdown label
+    dimensionField:  "Custom Dimension 1",
+  },
+
+  // The three dimension grains, by the EXACT labels in the Custom Dimension 1 dropdown.
+  // If a label is slightly off, fix it here — one line per grain.
+  dimensions: [
+    { key: "destinationL1", label: "Destination Level 1" },
+    { key: "city",          label: "Destination City" },
+    { key: "activity",      label: "Activity" },
+  ],
 };
 
 // ============================================================
@@ -152,45 +173,59 @@ function getLiveInsights() {
 // ============================================================
 
 /**
- * Sample company travel data for --test mode.
- * Mirrors the exact shape parseCompanyTravelCsv() returns,
- * so the Lark card renders identically to a real Tableau pull.
+ * Sample company data for --test mode.
+ * Mirrors the exact shape fetchTableauData() returns:
+ *   { domestic:{destinationL1,city,activity}, crossBorder:{...}, dateRange }
+ * Each breakdown has byNetSales / byNetBooking / byActivitySession (top-5 arrays).
  */
 function getSampleCompanyData() {
-  const topDomestic = [
-    { destination:"Kota Kinabalu", country:"Malaysia", type:"domestic",      bookings:48, travellers:96, spend:62000 },
-    { destination:"Langkawi",      country:"Malaysia", type:"domestic",      bookings:35, travellers:70, spend:41000 },
-    { destination:"Penang",        country:"Malaysia", type:"domestic",      bookings:29, travellers:52, spend:33500 },
-  ];
-  const topInternational = [
-    { destination:"Bangkok",   country:"Thailand",  type:"international", bookings:41, travellers:78, spend:88000 },
-    { destination:"Tokyo",     country:"Japan",     type:"international", bookings:33, travellers:61, spend:142000 },
-    { destination:"Singapore", country:"Singapore", type:"international", bookings:27, travellers:49, spend:39000 },
-  ];
+  // helper to fabricate a top-5 list
+  const mk = (items) => items.map(([name, value, change]) => ({ name, value, change }));
 
-  const domBookings  = topDomestic.reduce((s,d) => s+d.bookings, 0);
-  const intlBookings = topInternational.reduce((s,d) => s+d.bookings, 0);
-  const domTravellers  = topDomestic.reduce((s,d) => s+d.travellers, 0);
-  const intlTravellers = topInternational.reduce((s,d) => s+d.travellers, 0);
-  const domSpend  = topDomestic.reduce((s,d) => s+d.spend, 0);
-  const intlSpend = topInternational.reduce((s,d) => s+d.spend, 0);
-  const totalBookings = domBookings + intlBookings;
-  const totalSpend = domSpend + intlSpend;
-  const domPct = Math.round(domBookings / totalBookings * 100);
+  const breakdown = (ns, nb, as) => ({
+    grain: "sample",
+    rowCount: 5,
+    byNetSales:        mk(ns),
+    byNetBooking:      mk(nb),
+    byActivitySession: mk(as),
+  });
 
   return {
-    totalBookings,
-    totalSpend,
-    domPct,
-    intlPct: 100 - domPct,
-    split: {
-      domestic:      { bookings: domBookings,  travellers: domTravellers,  spend: domSpend },
-      international: { bookings: intlBookings, travellers: intlTravellers, spend: intlSpend },
+    dateRange: getFilterDateRange(),
+    domestic: {
+      destinationL1: breakdown(
+        [["Kuala Lumpur",420000,14.2],["Sabah",310000,9.1],["Penang",280000,12.4],["Langkawi",190000,-3.2],["Sarawak",150000,6.7]],
+        [["Kuala Lumpur",1850,11.0],["Sabah",1420,8.3],["Penang",1190,10.1],["Langkawi",870,-1.5],["Sarawak",640,5.2]],
+        [["Kuala Lumpur",96000,7.8],["Penang",71000,9.4],["Sabah",65000,6.1],["Langkawi",42000,-2.0],["Sarawak",33000,4.5]],
+      ),
+      city: breakdown(
+        [["George Town",260000,13.1],["Kota Kinabalu",240000,10.2],["Kuching",140000,7.0],["Kuantan",95000,4.4],["Ipoh",80000,2.1]],
+        [["George Town",1120,11.5],["Kota Kinabalu",990,9.0],["Kuching",610,6.2],["Kuantan",410,3.8],["Ipoh",350,1.9]],
+        [["George Town",58000,8.9],["Kota Kinabalu",52000,7.1],["Kuching",30000,5.0],["Kuantan",21000,3.0],["Ipoh",18000,1.2]],
+      ),
+      activity: breakdown(
+        [["Island Hopping",180000,15.6],["Theme Parks",160000,11.2],["City Tours",120000,8.0],["Diving",90000,5.5],["Food Tours",70000,9.9]],
+        [["Island Hopping",820,13.0],["Theme Parks",740,10.5],["City Tours",560,7.2],["Diving",380,4.8],["Food Tours",310,8.1]],
+        [["Theme Parks",47000,9.0],["Island Hopping",44000,8.2],["City Tours",31000,6.0],["Food Tours",22000,7.5],["Diving",19000,4.0]],
+      ),
     },
-    topDomestic,
-    topInternational,
-    topOverall: [...topDomestic, ...topInternational].sort((a,b) => b.bookings-a.bookings).slice(0,3),
-    dataRows: topDomestic.length + topInternational.length,
+    crossBorder: {
+      destinationL1: breakdown(
+        [["Thailand",680000,18.3],["Japan",590000,22.1],["Indonesia",410000,9.7],["Singapore",350000,6.2],["South Korea",300000,14.0]],
+        [["Thailand",2400,16.0],["Japan",1980,19.5],["Indonesia",1510,8.8],["Singapore",1290,5.5],["South Korea",1100,12.3]],
+        [["Japan",128000,15.1],["Thailand",119000,13.4],["Indonesia",74000,7.0],["Singapore",61000,5.0],["South Korea",55000,10.2]],
+      ),
+      city: breakdown(
+        [["Bangkok",380000,17.0],["Tokyo",360000,21.0],["Bali",250000,9.0],["Singapore",240000,6.0],["Seoul",190000,13.5]],
+        [["Bangkok",1350,15.2],["Tokyo",1210,18.8],["Bali",920,8.1],["Singapore",880,5.3],["Seoul",690,11.9]],
+        [["Tokyo",78000,14.2],["Bangkok",70000,12.6],["Bali",45000,6.8],["Singapore",41000,4.9],["Seoul",34000,9.8]],
+      ),
+      activity: breakdown(
+        [["Theme Parks",290000,20.4],["City Tours",240000,12.1],["Cultural Sites",180000,10.0],["Beach & Islands",160000,8.3],["Food Tours",110000,11.0]],
+        [["Theme Parks",1080,18.0],["City Tours",910,10.8],["Cultural Sites",680,9.1],["Beach & Islands",590,7.5],["Food Tours",420,9.9]],
+        [["Theme Parks",84000,16.0],["City Tours",62000,9.5],["Cultural Sites",44000,8.0],["Beach & Islands",39000,6.4],["Food Tours",27000,8.8]],
+      ),
+    },
   };
 }
 
@@ -230,34 +265,58 @@ async function tableauAuth() {
 }
 
 /**
- * Resolve the target view ID.
- * Uses TABLEAU_CONFIG.viewId directly if set, otherwise searches by name.
+ * Resolve the date window for the filters (last Mon–Sun) in YYYY-MM-DD.
  */
-async function resolveViewId(token, siteId) {
-  const { server, viewId, viewName } = TABLEAU_CONFIG;
-  if (viewId) return viewId;
+function getFilterDateRange() {
+  const { start } = getWeekRange();
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  const iso = d => d.toISOString().slice(0, 10);
+  return { start: iso(start), end: iso(end) };
+}
+
+/**
+ * Pull one view's data for one dimension grain, applying all filters via vf_ params.
+ * Returns parsed breakdown, or null on failure.
+ */
+async function pullViewBreakdown(token, siteId, viewId, dim) {
+  const { server, filters } = TABLEAU_CONFIG;
+  const { start, end } = getFilterDateRange();
+
+  // Build vf_ filter query string. Field names with spaces are URL-encoded.
+  const vf = {
+    [filters.residencyField]:  filters.residencyValue,
+    [filters.startDateField]:  start,
+    [filters.endDateField]:    end,
+    [filters.comparisonField]: filters.comparisonValue,
+    [filters.dimensionField]:  dim.label,
+  };
+  const qs = Object.entries(vf)
+    .map(([k, v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join("&");
 
   try {
     const res = await fetch(
-      `${server}/api/3.21/sites/${siteId}/views?filter=name:eq:${encodeURIComponent(viewName)}`,
-      { headers: { "X-Tableau-Auth": token, "Accept": "application/json" } }
+      `${server}/api/3.21/sites/${siteId}/views/${viewId}/data?${qs}`,
+      { headers: { "X-Tableau-Auth": token, "Accept": "text/csv" } }
     );
-    if (!res.ok) throw new Error(`Views HTTP ${res.status}`);
-    const json = await res.json();
-    const views = json.views?.view || [];
-    if (!views.length) throw new Error(`No view found matching "${viewName}"`);
-    console.log(`✅ Resolved view: "${views[0].name}" (${views[0].id})`);
-    return views[0].id;
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const csv = await res.text();
+    const parsed = parseCompanyBreakdown(csv, dim.label);
+    if (!parsed || parsed.rowCount === 0) {
+      console.warn(`⚠️  ${dim.label}: 0 rows — check filter names/values`);
+    } else {
+      console.log(`✅ ${dim.label}: ${parsed.rowCount} rows`);
+    }
+    return parsed;
   } catch (e) {
-    console.warn(`⚠️  View lookup failed: ${e.message}`);
+    console.warn(`⚠️  Pull failed (${dim.label}): ${e.message}`);
     return null;
   }
 }
 
 /**
- * Download CSV data from a Tableau view and parse into company travel stats.
- * Expected CSV columns (flexible — maps by header name):
- *   Destination | Country | Trip Type (Domestic/International) | Bookings | Travellers | Spend (MYR)
+ * Fetch the full company dataset: 2 views (Domestic, Cross-Border)
+ * × 3 dimension grains (Destination Level 1, City, Activity).
  */
 async function fetchTableauData() {
   // --test flag: skip Tableau entirely and return realistic sample data
@@ -268,150 +327,132 @@ async function fetchTableauData() {
 
   const auth = await tableauAuth();
   if (!auth) return null;
-
   const { token, siteId } = auth;
-  const { server } = TABLEAU_CONFIG;
+  const { views, dimensions } = TABLEAU_CONFIG;
 
-  const vid = await resolveViewId(token, siteId);
-  if (!vid) return null;
+  const out = {
+    domestic:    { destinationL1: null, city: null, activity: null },
+    crossBorder: { destinationL1: null, city: null, activity: null },
+    dateRange:   getFilterDateRange(),
+  };
 
-  try {
-    const res = await fetch(
-      `${server}/api/3.21/sites/${siteId}/views/${vid}/data`,
-      { headers: { "X-Tableau-Auth": token, "Accept": "text/csv" } }
-    );
-    if (!res.ok) throw new Error(`Data fetch HTTP ${res.status}`);
-    const csv = await res.text();
-    return parseCompanyTravelCsv(csv);
-  } catch (e) {
-    console.warn(`⚠️  Tableau data fetch failed: ${e.message}`);
-    return null;
+  for (const dim of dimensions) {
+    out.domestic[dim.key]    = await pullViewBreakdown(token, siteId, views.domestic, dim);
+    out.crossBorder[dim.key] = await pullViewBreakdown(token, siteId, views.crossBorder, dim);
   }
+
+  // Consider it a success if at least one breakdown returned rows
+  const any = [...Object.values(out.domestic), ...Object.values(out.crossBorder)]
+    .some(b => b && b.rowCount > 0);
+  return any ? out : null;
 }
 
 /**
- * Parse CSV into a structured company travel summary.
- * Tolerant of different column orderings and capitalisation.
+ * Parse Tableau export (tab- or comma-delimited) into ranked breakdowns.
+ *
+ * Real Business Performance columns (dimension varies by grain):
+ *   <Dimension> | Gross Sales | Gross Sales VS | Net Sales | Net Sales VS |
+ *   ... | Net Booking | Net Booking VS | ... | Activity Session | Activity Session VS | ...
+ *
+ * The dimension column is whatever sits in position 0 (e.g. "Destination Level 1",
+ * "Destination City", or "Activity"). We rank by Net Sales, Net Booking, and
+ * Activity Session — each paired with its "VS" comparison column for the change chip.
+ *
+ * @param {string} raw  - the exported data (tab-preferred, comma fallback)
+ * @param {string} grain - label for this breakdown ("Destination Level 1" | "Destination City" | "Activity")
  */
-function parseCompanyTravelCsv(csv) {
-  const lines = csv.trim().split("\n").filter(Boolean);
+function parseCompanyBreakdown(raw, grain) {
+  if (!raw || !raw.trim()) return null;
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
   if (lines.length < 2) return null;
 
-  // Normalise headers
-  const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g,"_"));
-  const col = name => headers.findIndex(h => h.includes(name));
+  // Tableau exports are tab-delimited; fall back to comma
+  const delim = lines[0].includes("\t") ? "\t" : ",";
+  const split = line => line.split(delim).map(c => c.trim().replace(/^"|"$/g, ""));
 
-  const iDest      = col("destination");
-  const iCountry   = col("country");
-  const iType      = col("type");        // domestic / international
-  const iBookings  = col("booking");
-  const iTraveller = col("traveller");
-  const iSpend     = col("spend");
+  const headers = split(lines[0]);
+  const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const findCol = (name) => headers.findIndex(h => norm(h) === norm(name));
+
+  // Dimension is column 0 (its header is the grain name)
+  const iDim = 0;
+
+  // Measures + their VS (comparison) columns — matched by exact normalised name
+  const measures = {
+    netSales:        { col: findCol("Net Sales"),        vs: findCol("Net Sales VS") },
+    netBooking:      { col: findCol("Net Booking"),      vs: findCol("Net Booking VS") },
+    activitySession: { col: findCol("Activity Session"), vs: findCol("Activity Session VS") },
+  };
+
+  const num = v => {
+    if (v == null) return 0;
+    const n = parseFloat(String(v).replace(/[$,%\s]/g, ""));
+    return isNaN(n) ? 0 : n;
+  };
+  // VS columns may be "14.0%" or "▲14%" or "1.5p.p" — extract signed number
+  const pct = v => {
+    if (v == null) return 0;
+    const m = String(v).match(/(▼|-)?\s*([\d.]+)/);
+    if (!m) return 0;
+    const sign = (m[1] === "▼" || m[1] === "-") ? -1 : 1;
+    return sign * parseFloat(m[2]);
+  };
 
   const rows = lines.slice(1).map(line => {
-    const cells = line.split(",").map(c => c.trim().replace(/^"|"$/g,""));
+    const c = split(line);
     return {
-      destination: iDest      >= 0 ? cells[iDest]      : "Unknown",
-      country:     iCountry   >= 0 ? cells[iCountry]   : "",
-      type:        iType      >= 0 ? cells[iType].toLowerCase() : "unknown",
-      bookings:    iBookings  >= 0 ? parseFloat(cells[iBookings])  || 0 : 0,
-      travellers:  iTraveller >= 0 ? parseFloat(cells[iTraveller]) || 0 : 0,
-      spend:       iSpend     >= 0 ? parseFloat(cells[iSpend])     || 0 : 0,
+      name: c[iDim] || "Unknown",
+      netSales:        num(c[measures.netSales.col]),
+      netSalesVS:      pct(c[measures.netSales.vs]),
+      netBooking:      num(c[measures.netBooking.col]),
+      netBookingVS:    pct(c[measures.netBooking.vs]),
+      activitySession: num(c[measures.activitySession.col]),
+      activitySessionVS: pct(c[measures.activitySession.vs]),
     };
-  });
+  }).filter(r => r.name && r.name !== "Unknown");
 
-  // Aggregate
-  const byDest = {};
-  let totalBookings = 0, totalSpend = 0;
-  let domBookings = 0, intlBookings = 0;
-  let domSpend = 0, intlSpend = 0;
-  let domTravellers = 0, intlTravellers = 0;
-
-  for (const r of rows) {
-    if (!byDest[r.destination]) byDest[r.destination] = { ...r };
-    else {
-      byDest[r.destination].bookings   += r.bookings;
-      byDest[r.destination].travellers += r.travellers;
-      byDest[r.destination].spend      += r.spend;
-    }
-    totalBookings += r.bookings;
-    totalSpend    += r.spend;
-    if (r.type.startsWith("dom")) {
-      domBookings   += r.bookings;
-      domSpend      += r.spend;
-      domTravellers += r.travellers;
-    } else {
-      intlBookings   += r.bookings;
-      intlSpend      += r.spend;
-      intlTravellers += r.travellers;
-    }
-  }
-
-  const sorted = Object.values(byDest).sort((a,b) => b.bookings - a.bookings);
-  const topDom  = sorted.filter(d => d.type.startsWith("dom")).slice(0,3);
-  const topIntl = sorted.filter(d => !d.type.startsWith("dom")).slice(0,3);
-
-  const domPct  = totalBookings ? Math.round(domBookings  / totalBookings * 100) : 0;
-  const intlPct = 100 - domPct;
+  const top = (key, vsKey) => [...rows]
+    .sort((a, b) => b[key] - a[key])
+    .slice(0, 5)
+    .map(r => ({ name: r.name, value: r[key], change: r[vsKey] }));
 
   return {
-    totalBookings,
-    totalSpend,
-    domPct,
-    intlPct,
-    split: {
-      domestic:      { bookings: domBookings,  travellers: domTravellers,  spend: domSpend },
-      international: { bookings: intlBookings, travellers: intlTravellers, spend: intlSpend },
-    },
-    topDomestic:      topDom,
-    topInternational: topIntl,
-    topOverall:       sorted.slice(0,3),
-    dataRows:         rows.length,
+    grain,
+    rowCount: rows.length,
+    byNetSales:        top("netSales", "netSalesVS"),
+    byNetBooking:      top("netBooking", "netBookingVS"),
+    byActivitySession: top("activitySession", "activitySessionVS"),
   };
 }
 
 // ============================================================
-// COMPARISON HELPER
+// COMPARISON HELPER (company vs market)
 // ============================================================
 
 /**
  * Compare company top destinations vs market trends.
- * Returns short insight strings for the Lark card.
+ * Uses Cross-Border destinationL1 (by net sales) as the company "top international",
+ * and Domestic destinationL1 as company "top domestic".
  */
 function buildCompanyVsMarket(companyData, trends) {
   if (!companyData) return null;
   const insights = [];
 
+  const coTopDom  = companyData.domestic?.destinationL1?.byNetSales?.[0]?.name;
+  const coTopIntl = companyData.crossBorder?.destinationL1?.byNetSales?.[0]?.name;
   const mktTopDom  = trends.domestic[0]?.destination;
-  const coTopDom   = companyData.topDomestic[0]?.destination;
+  const mktTopIntl = trends.international[0]?.destination;
+
   if (mktTopDom && coTopDom) {
     insights.push(mktTopDom === coTopDom
-      ? `✅ Your team aligns with the market — **${coTopDom}** is #1 for both`
-      : `📌 Market trending: **${mktTopDom}** — your team's top: **${coTopDom}**`
-    );
+      ? `✅ Domestic aligned — **${coTopDom}** tops both market & company`
+      : `📌 Market top domestic: **${mktTopDom}** · company: **${coTopDom}**`);
   }
-
-  const mktTopIntl = trends.international[0]?.destination;
-  const coTopIntl  = companyData.topInternational[0]?.destination;
   if (mktTopIntl && coTopIntl) {
     insights.push(mktTopIntl === coTopIntl
-      ? `✅ International alignment — **${coTopIntl}** tops both market & your bookings`
-      : `📌 Market trending: **${mktTopIntl}** — your team's top: **${coTopIntl}**`
-    );
+      ? `✅ Outbound aligned — **${coTopIntl}** tops both`
+      : `📌 Market top outbound: **${mktTopIntl}** · company: **${coTopIntl}**`);
   }
-
-  const mktDomPct = trends.domesticShare;
-  const coDomPct  = companyData.domPct;
-  const diff = coDomPct - mktDomPct;
-  if (Math.abs(diff) >= 5) {
-    insights.push(diff > 0
-      ? `🏠 Your team books more domestic (${coDomPct}%) vs market avg (${mktDomPct}%)`
-      : `✈️ Your team skews more international (${companyData.intlPct}%) vs market (${100-mktDomPct}%)`
-    );
-  } else {
-    insights.push(`⚖️ Domestic/international split mirrors market — ${coDomPct}% vs ${mktDomPct}% domestic`);
-  }
-
   return insights;
 }
 
@@ -533,6 +574,10 @@ function generateTrends(weekStart, upcomingEvents) {
 // ============================================================
 
 function saveDataJson(trends, weekLabel, upcomingEvents, companyData) {
+  // Attach the company-vs-market comparison lines so the dashboard can render them too
+  if (companyData) {
+    companyData.vsMarket = buildCompanyVsMarket(companyData, trends) || [];
+  }
   const payload = { ...trends, weekLabel, upcomingEvents, companyData: companyData || null, updatedAt: new Date().toISOString() };
   fs.writeFileSync("data.json", JSON.stringify(payload, null, 2));
   console.log("✅ data.json saved");
@@ -542,7 +587,9 @@ function saveDataJson(trends, weekLabel, upcomingEvents, companyData) {
 // BUILD LARK CARD
 // ============================================================
 
-function buildLarkCard(data, weekLabel, upcomingEvents, companyData) {
+function buildLarkCard(data, weekLabel, upcomingEvents, companyData, opts = {}) {
+  const topN = opts.topN || 5;
+  const collapseCompany = opts.collapseCompany || false;
   const flag = c => ({MY:"🇲🇾",TH:"🇹🇭",JP:"🇯🇵",KR:"🇰🇷",ID:"🇮🇩",SG:"🇸🇬",CN:"🇨🇳",VN:"🇻🇳",TR:"🇹🇷",AE:"🇦🇪"}[c]||"🌍");
   const chip = v => v >= 0 ? `▲ ${v}%` : `▼ ${Math.abs(v)}%`;
   const myr  = n => `MYR ${n >= 1_000_000 ? (n/1_000_000).toFixed(1)+"M" : n >= 1_000 ? (n/1_000).toFixed(0)+"K" : n}`;
@@ -573,53 +620,61 @@ function buildLarkCard(data, weekLabel, upcomingEvents, companyData) {
   // ── Company data section ──────────────────────────────────
   const companyElements = [];
 
-  if (companyData) {
-    const coTopDom  = companyData.topDomestic.slice(0,3).map((d,i) => `${["🥇","🥈","🥉"][i]} ${d.destination} (${d.bookings} bookings)`).join("\n");
-    const coTopIntl = companyData.topInternational.slice(0,3).map((d,i) => `${["🥇","🥈","🥉"][i]} ${d.destination} (${d.bookings} bookings)`).join("\n");
-    const vsMarket  = buildCompanyVsMarket(companyData, data) || [];
+  if (companyData && companyData.domestic && collapseCompany) {
+    // Size-guard fallback: full detail lives on the dashboard
+    companyElements.push(
+      { tag:"hr" },
+      { tag:"div", text:{ tag:"lark_md", content:`**🏢 Company Travel — Residency: MY (WoW)**\nFull top-5 breakdowns (Destination, City, Activity × Net Sales, Net Booking, Activity Session) for both Domestic and Outbound are on the dashboard — the full table is too large for a single Lark card.` } },
+    );
+  } else if (companyData && companyData.domestic) {
+    const fmtVal = n => n >= 1000000 ? "$"+(n/1000000).toFixed(1)+"M" : n >= 1000 ? "$"+(n/1000).toFixed(0)+"K" : String(n);
+    const chg = v => v >= 0 ? `▲${Math.abs(v)}%` : `▼${Math.abs(v)}%`;
 
-    // Visual split bar — 20 segments, proportional to domestic/international %
-    const segments = 20;
-    const domSeg = Math.round(companyData.domPct / 100 * segments);
-    const splitBar = "🟩".repeat(domSeg) + "🟦".repeat(segments - domSeg);
+    // One ranked list → markdown (respects topN from size guard)
+    const list = (arr) => (arr||[]).slice(0, topN).map((r,i) =>
+      `${i+1}. ${r.name} (${fmtVal(r.value)}) ${chg(r.change)}`
+    ).join("\n") || "_No data_";
 
-    const sp = companyData.split || { domestic:{}, international:{} };
+    // One dimension block = 3 measure columns side by side
+    const dimBlock = (bd, title) => {
+      if (!bd) return [];
+      return [
+        { tag:"div", text:{ tag:"lark_md", content:`**${title}**` } },
+        {
+          tag:"column_set", flex_mode:"stretch",
+          columns: [
+            { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`_By Net Sales_\n${list(bd.byNetSales)}` } }] },
+            { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`_By Net Booking_\n${list(bd.byNetBooking)}` } }] },
+            { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`_By Activity Session_\n${list(bd.byActivitySession)}` } }] },
+          ]
+        },
+      ];
+    };
+
+    const dr = companyData.dateRange || {};
+    const vsMarket = buildCompanyVsMarket(companyData, data) || [];
 
     companyElements.push(
       { tag:"hr" },
-      { tag:"div", text:{ tag:"lark_md", content:"**🏢 Your Company Travel — This Week**" } },
-      {
-        tag:"column_set", flex_mode:"stretch",
-        columns: [
-          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**Total bookings**\n🎫 ${companyData.totalBookings.toLocaleString()}` } }] },
-          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**Total spend**\n💰 ${myr(companyData.totalSpend)}` } }] },
-          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**Domestic**\n🏠 ${companyData.domPct}%` } }] },
-          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**International**\n✈️ ${companyData.intlPct}%` } }] },
-        ]
-      },
-      // Visual split bar
-      { tag:"div", text:{ tag:"lark_md", content:`**📊 Domestic vs International split**\n${splitBar}\n🟩 Domestic ${companyData.domPct}%   🟦 International ${companyData.intlPct}%` } },
-      // Per-side breakdown: bookings · travellers · spend
-      {
-        tag:"column_set", flex_mode:"stretch",
-        columns: [
-          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**🏠 Domestic**\n🎫 ${(sp.domestic.bookings||0).toLocaleString()} bookings\n👥 ${(sp.domestic.travellers||0).toLocaleString()} travellers\n💰 ${myr(sp.domestic.spend||0)}` } }] },
-          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**✈️ International**\n🎫 ${(sp.international.bookings||0).toLocaleString()} bookings\n👥 ${(sp.international.travellers||0).toLocaleString()} travellers\n💰 ${myr(sp.international.spend||0)}` } }] },
-        ]
-      },
-      {
-        tag:"column_set", flex_mode:"stretch",
-        columns: [
-          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**🏠 Top domestic routes**\n${coTopDom||"_No data_"}` } }] },
-          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**✈️ Top international routes**\n${coTopIntl||"_No data_"}` } }] },
-        ]
-      },
-      { tag:"div", text:{ tag:"lark_md", content:`**📊 Company vs Market**\n${vsMarket.join("\n")||"_Insufficient data for comparison_"}` } },
+      { tag:"div", text:{ tag:"lark_md", content:`**🏢 Company Travel — Residency: MY · ${dr.start||""} → ${dr.end||""} (WoW)**` } },
+
+      { tag:"div", text:{ tag:"lark_md", content:"**🏠 DOMESTIC**" } },
+      ...dimBlock(companyData.domestic.destinationL1, "Destination Level 1"),
+      ...dimBlock(companyData.domestic.city,          "Destination City"),
+      ...dimBlock(companyData.domestic.activity,      "Activity"),
+
+      { tag:"hr" },
+      { tag:"div", text:{ tag:"lark_md", content:"**✈️ OUTBOUND (Cross-Border)**" } },
+      ...dimBlock(companyData.crossBorder.destinationL1, "Destination Level 1"),
+      ...dimBlock(companyData.crossBorder.city,          "Destination City"),
+      ...dimBlock(companyData.crossBorder.activity,      "Activity"),
+
+      { tag:"div", text:{ tag:"lark_md", content:`**📊 Company vs Market**\n${vsMarket.join("\n")||"_n/a_"}` } },
     );
   } else {
     companyElements.push(
       { tag:"hr" },
-      { tag:"div", text:{ tag:"lark_md", content:"**🏢 Your Company Travel**\n_Tableau not connected — configure TABLEAU_CONFIG to enable company data_" } },
+      { tag:"div", text:{ tag:"lark_md", content:"**🏢 Company Travel**\n_Tableau not connected — configure TABLEAU_CONFIG to enable_" } },
     );
   }
 
@@ -672,7 +727,7 @@ function buildLarkCard(data, weekLabel, upcomingEvents, companyData) {
         ...companyElements,
 
         { tag:"hr" },
-        { tag:"div", text:{ tag:"lark_md", content:`**📊 Data sources**\n📅 JPM Federal Holiday Calendar 2026\n🏫 MOE Academic Calendar 2026 (Surat Siaran KPM Bil.3 2025)\n📰 Travel news: Zafigo, Agoda Travel Outlook, Travel And Tour World\n📈 Seasonal travel patterns & booking signals${companyData ? "\n🏢 Company bookings: Tableau" : ""}` } },
+        { tag:"div", text:{ tag:"lark_md", content:`**📊 Data sources**\n📅 JPM Federal Holiday Calendar 2026\n🏫 MOE Academic Calendar 2026 (Surat Siaran KPM Bil.3 2025)\n📰 Travel news: Zafigo, Agoda Travel Outlook, Travel And Tour World\n📈 Seasonal travel patterns & booking signals${(companyData && companyData.domestic) ? "\n🏢 Company data: Tableau (Business Performance · Residency MY · WoW)" : ""}` } },
         { tag:"note", elements:[{ tag:"plain_text", content:`Auto-generated by MY Travel Trends Bot · Week of ${weekLabel} · Sent every Monday 9:00 AM MYT` }] }
       ]
     }
@@ -682,6 +737,35 @@ function buildLarkCard(data, weekLabel, upcomingEvents, companyData) {
 // ============================================================
 // SEND TO LARK
 // ============================================================
+
+// Lark interactive cards have a payload ceiling (~30KB is a safe working limit).
+const LARK_MAX_BYTES = 30000;
+
+function payloadBytes(obj) {
+  return Buffer.byteLength(JSON.stringify(obj), "utf8");
+}
+
+/**
+ * If the card is too large, progressively shrink the company section so the
+ * card still sends. Returns a (possibly trimmed) card plus a note flag.
+ */
+function fitCardToLark(card, trends, weekLabel, upcomingEvents, companyData) {
+  if (payloadBytes(card) <= LARK_MAX_BYTES) return card;
+
+  console.warn(`⚠️  Card ${payloadBytes(card)}B exceeds ${LARK_MAX_BYTES}B — trimming company section`);
+
+  // Step 1: rebuild with top-3 instead of top-5
+  let trimmed = buildLarkCard(trends, weekLabel, upcomingEvents, companyData, { topN: 3 });
+  if (payloadBytes(trimmed) <= LARK_MAX_BYTES) {
+    console.warn("   → trimmed company lists to top-3");
+    return trimmed;
+  }
+
+  // Step 2: collapse company section to a pointer to the dashboard
+  trimmed = buildLarkCard(trends, weekLabel, upcomingEvents, companyData, { collapseCompany: true });
+  console.warn("   → collapsed company section (full detail on dashboard)");
+  return trimmed;
+}
 
 async function sendToLark(payload, webhook) {
   const res = await fetch(webhook, {
@@ -712,15 +796,20 @@ async function main() {
   // Fetch Tableau company data (graceful — won't block the report if it fails)
   console.log("🔌 Fetching Tableau company data...");
   const companyData = await fetchTableauData();
-  if (companyData) {
-    console.log(`✅ Company data: ${companyData.dataRows} rows, ${companyData.totalBookings} bookings`);
+  if (companyData && companyData.domestic) {
+    const grains = [companyData.domestic.destinationL1, companyData.domestic.city, companyData.domestic.activity,
+                    companyData.crossBorder.destinationL1, companyData.crossBorder.city, companyData.crossBorder.activity];
+    const ok = grains.filter(g => g && g.rowCount > 0).length;
+    console.log(`✅ Company data: ${ok}/6 breakdowns returned rows`);
   } else {
     console.log("ℹ️  No company data — report will send without it");
   }
 
   saveDataJson(trends, weekLabel, upcomingEvents, companyData);
 
-  const card = buildLarkCard(trends, weekLabel, upcomingEvents, companyData);
+  let card = buildLarkCard(trends, weekLabel, upcomingEvents, companyData);
+  card = fitCardToLark(card, trends, weekLabel, upcomingEvents, companyData);
+  console.log(`📦 Card payload: ${payloadBytes(card)} bytes`);
 
   for (const webhook of WEBHOOKS) {
     try {
