@@ -7,27 +7,29 @@
   "topActivity": "Snorkelling tour",
   "domestic": [
     {
-      "destination": "Sabah",
-      "state": "Sabah",
-      "category": "nature",
+      "destination": "Kuala Terengganu",
+      "state": "Terengganu",
+      "category": "heritage",
       "peak": [
         3,
         4,
         5,
         6,
         7,
-        8
+        8,
+        9
       ],
       "offpeak": [
-        1,
-        2,
+        10,
         11,
-        12
+        12,
+        1,
+        2
       ],
       "score": 89,
-      "change": 24,
+      "change": 30,
       "volume": 89,
-      "reason": "Seasonal peak — popular nature destination"
+      "reason": "Seasonal peak — popular heritage destination"
     },
     {
       "destination": "Kota Kinabalu",
@@ -49,34 +51,10 @@
         11,
         12
       ],
-      "score": 88,
-      "change": 27,
-      "volume": 88,
+      "score": 83,
+      "change": 39,
+      "volume": 83,
       "reason": "Seasonal peak — popular beach destination"
-    },
-    {
-      "destination": "Melaka",
-      "state": "Melaka",
-      "category": "heritage",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
-      "offpeak": [],
-      "score": 86,
-      "change": 24,
-      "volume": 86,
-      "reason": "Seasonal peak — popular heritage destination"
     },
     {
       "destination": "Johor Bahru",
@@ -97,9 +75,9 @@
         12
       ],
       "offpeak": [],
-      "score": 85,
-      "change": 21,
-      "volume": 85,
+      "score": 82,
+      "change": 12,
+      "volume": 82,
       "reason": "Seasonal peak — popular city destination"
     },
     {
@@ -121,19 +99,21 @@
         12
       ],
       "offpeak": [],
-      "score": 83,
-      "change": -2,
-      "volume": 83,
+      "score": 81,
+      "change": 7,
+      "volume": 81,
       "reason": "Seasonal peak — popular nature destination"
-    }
-  ],
-  "international": [
+    },
     {
-      "destination": "Bali",
-      "country": "Indonesia",
-      "countryCode": "ID",
-      "category": "beach",
+      "destination": "Penang",
+      "state": "Penang",
+      "category": "city",
       "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
         6,
         7,
         8,
@@ -142,18 +122,14 @@
         11,
         12
       ],
-      "offpeak": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
-      "score": 84,
-      "change": 9,
-      "volume": 84,
-      "reason": "Trending — popular beach destination"
-    },
+      "offpeak": [],
+      "score": 79,
+      "change": -5,
+      "volume": 79,
+      "reason": "Seasonal peak — popular city destination"
+    }
+  ],
+  "international": [
     {
       "destination": "Istanbul",
       "country": "Turkey",
@@ -175,9 +151,9 @@
         8,
         12
       ],
-      "score": 82,
-      "change": 20,
-      "volume": 82,
+      "score": 83,
+      "change": 5,
+      "volume": 83,
       "reason": "Trending — popular culture destination"
     },
     {
@@ -200,36 +176,36 @@
         12
       ],
       "offpeak": [],
-      "score": 73,
-      "change": 8,
-      "volume": 73,
+      "score": 81,
+      "change": 1,
+      "volume": 81,
       "reason": "Trending — popular city destination"
     },
     {
-      "destination": "Seoul",
-      "country": "South Korea",
-      "countryCode": "KR",
-      "category": "city",
+      "destination": "Bali",
+      "country": "Indonesia",
+      "countryCode": "ID",
+      "category": "beach",
       "peak": [
-        3,
-        4,
-        5,
+        6,
+        7,
+        8,
         9,
         10,
-        11
+        11,
+        12
       ],
       "offpeak": [
         1,
         2,
-        6,
-        7,
-        8,
-        12
+        3,
+        4,
+        5
       ],
-      "score": 42,
-      "change": 26,
-      "volume": 42,
-      "reason": "Trending — popular city destination"
+      "score": 80,
+      "change": -2,
+      "volume": 80,
+      "reason": "Trending — popular beach destination"
     },
     {
       "destination": "Phuket",
@@ -252,10 +228,36 @@
         9,
         10
       ],
-      "score": 42,
-      "change": -3,
-      "volume": 42,
+      "score": 41,
+      "change": 31,
+      "volume": 41,
       "reason": "Trending — popular beach destination"
+    },
+    {
+      "destination": "Osaka",
+      "country": "Japan",
+      "countryCode": "JP",
+      "category": "city",
+      "peak": [
+        3,
+        4,
+        5,
+        9,
+        10,
+        11
+      ],
+      "offpeak": [
+        1,
+        2,
+        6,
+        7,
+        8,
+        12
+      ],
+      "score": 39,
+      "change": -3,
+      "volume": 39,
+      "reason": "Trending — popular city destination"
     }
   ],
   "domesticActivities": [
@@ -273,7 +275,7 @@
       ],
       "score": 80,
       "change": 17,
-      "volume": 61
+      "volume": 62
     },
     {
       "name": "Mt. Kinabalu climb",
@@ -287,8 +289,8 @@
         8
       ],
       "score": 80,
-      "change": 12,
-      "volume": 59
+      "change": 39,
+      "volume": 64
     },
     {
       "name": "Penang food walk",
@@ -308,8 +310,8 @@
         12
       ],
       "score": 80,
-      "change": 25,
-      "volume": 61
+      "change": 19,
+      "volume": 76
     }
   ],
   "internationalActivities": [
@@ -328,8 +330,8 @@
         12
       ],
       "score": 80,
-      "change": 16,
-      "volume": 50
+      "change": 28,
+      "volume": 69
     },
     {
       "name": "Bali rice terrace cycling",
@@ -342,8 +344,8 @@
         10
       ],
       "score": 80,
-      "change": 36,
-      "volume": 55
+      "change": 24,
+      "volume": 58
     },
     {
       "name": "Harajuku street food tour",
@@ -359,8 +361,8 @@
         10
       ],
       "score": 80,
-      "change": 39,
-      "volume": 72
+      "change": 29,
+      "volume": 69
     }
   ],
   "domCategories": {
@@ -416,6 +418,529 @@
       "daysAway": 2
     }
   ],
-  "companyData": null,
-  "updatedAt": "2026-06-15T09:21:58.422Z"
+  "companyData": {
+    "domestic": {
+      "destinationL1": {
+        "grain": "Destination Level 1",
+        "rowCount": 720,
+        "byNetSales": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byNetBooking": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byActivitySession": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ]
+      },
+      "city": {
+        "grain": "Destination City",
+        "rowCount": 720,
+        "byNetSales": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byNetBooking": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byActivitySession": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ]
+      },
+      "activity": {
+        "grain": "Activity",
+        "rowCount": 720,
+        "byNetSales": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byNetBooking": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byActivitySession": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ]
+      }
+    },
+    "crossBorder": {
+      "destinationL1": {
+        "grain": "Destination Level 1",
+        "rowCount": 720,
+        "byNetSales": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byNetBooking": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byActivitySession": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ]
+      },
+      "city": {
+        "grain": "Destination City",
+        "rowCount": 720,
+        "byNetSales": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byNetBooking": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byActivitySession": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ]
+      },
+      "activity": {
+        "grain": "Activity",
+        "rowCount": 720,
+        "byNetSales": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byNetBooking": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ],
+        "byActivitySession": [
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          },
+          {
+            "name": "ANZ",
+            "value": 0,
+            "change": 0
+          }
+        ]
+      }
+    },
+    "dateRange": {
+      "start": "2026-06-08",
+      "end": "2026-06-14"
+    },
+    "vsMarket": [
+      "📌 Market top domestic: **Kuala Terengganu** · company: **ANZ**",
+      "📌 Market top outbound: **Istanbul** · company: **ANZ**"
+    ]
+  },
+  "updatedAt": "2026-06-15T09:32:23.640Z"
 }
