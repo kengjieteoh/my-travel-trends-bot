@@ -329,7 +329,24 @@ async function fetchTableauData() {
   const auth = await tableauAuth();
   if (!auth) return null;
   const { token, siteId } = auth;
-  const { views, dimensions } = TABLEAU_CONFIG;
+  const { server, views, dimensions } = TABLEAU_CONFIG;
+
+  // ── DIAGNOSTIC: one bare pull (no filters) to isolate endpoint vs filter issues ──
+  try {
+    const dRes = await fetch(
+      `${server}/api/3.21/sites/${siteId}/views/${views.domestic}/data`,
+      { headers: { "X-Tableau-Auth": token } }
+    );
+    if (dRes.ok) {
+      const txt = await dRes.text();
+      const firstLine = (txt.split(/\r?\n/)[0] || "").slice(0, 300);
+      console.log(`🔍 DIAG no-filter pull OK (${txt.length} chars). Headers: ${firstLine}`);
+    } else {
+      console.warn(`🔍 DIAG no-filter pull failed — HTTP ${dRes.status} (endpoint/viewID/API issue, not filters)`);
+    }
+  } catch (e) {
+    console.warn(`🔍 DIAG no-filter pull error: ${e.message}`);
+  }
 
   const out = {
     domestic:    { destinationL1: null, city: null, activity: null },
