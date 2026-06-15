@@ -358,6 +358,26 @@ async function fetchTableauData() {
   const { token, siteId } = auth;
   const { server, views, dimensions } = TABLEAU_CONFIG;
 
+  // ── DIAGNOSTIC: list views on the site so we can find the real worksheet view IDs ──
+  try {
+    const lRes = await fetch(
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views?pageSize=1000`,
+      { headers: { "X-Tableau-Auth": token, "Accept": "application/json" } }
+    );
+    if (lRes.ok) {
+      const j = await lRes.json();
+      const vs = j?.views?.view || [];
+      console.log(`🔍 DIAG: ${vs.length} views visible. Matches for Business/Domestic/Cross-Border:`);
+      vs.filter(v => /business|domestic|cross|border|performance/i.test(v.name + " " + (v.contentUrl||"")))
+        .slice(0, 30)
+        .forEach(v => console.log(`     • "${v.name}"  id=${v.id}  url=${v.contentUrl}`));
+    } else {
+      console.warn(`🔍 DIAG list-views HTTP ${lRes.status}`);
+    }
+  } catch (e) {
+    console.warn(`🔍 DIAG list-views error: ${e.message}`);
+  }
+
   // ── DIAGNOSTIC: one bare pull (no filters) to isolate endpoint vs filter issues ──
   try {
     const dRes = await fetch(
@@ -369,7 +389,7 @@ async function fetchTableauData() {
       const firstLine = (txt.split(/\r?\n/)[0] || "").slice(0, 300);
       console.log(`🔍 DIAG no-filter pull OK (${txt.length} chars). Headers: ${firstLine}`);
     } else {
-      console.warn(`🔍 DIAG no-filter pull failed — HTTP ${dRes.status} (endpoint/viewID/API issue, not filters)`);
+      console.warn(`🔍 DIAG no-filter pull failed — HTTP ${dRes.status} (likely wrong view ID)`);
     }
   } catch (e) {
     console.warn(`🔍 DIAG no-filter pull error: ${e.message}`);
