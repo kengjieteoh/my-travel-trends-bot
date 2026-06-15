@@ -278,7 +278,7 @@ function getFilterDateRange() {
  * Pull one view's data for one dimension grain, applying all filters via vf_ params.
  * Returns parsed breakdown, or null on failure.
  */
-async function pullViewBreakdown(token, siteId, viewId, dim) {
+async function pullViewBreakdown(token, siteId, viewId, dim, splitName) {
   const { server, filters } = TABLEAU_CONFIG;
   const { start, end } = getFilterDateRange();
 
@@ -294,22 +294,23 @@ async function pullViewBreakdown(token, siteId, viewId, dim) {
     .map(([k, v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join("&");
 
+  const tag = `${splitName} · ${dim.label}`;
   try {
     const res = await fetch(
       `${server}/api/3.21/sites/${siteId}/views/${viewId}/data?${qs}`,
-      { headers: { "X-Tableau-Auth": token, "Accept": "text/csv" } }
+      { headers: { "X-Tableau-Auth": token } }   // no Accept header — endpoint returns CSV natively (avoids HTTP 406)
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const csv = await res.text();
     const parsed = parseCompanyBreakdown(csv, dim.label);
     if (!parsed || parsed.rowCount === 0) {
-      console.warn(`⚠️  ${dim.label}: 0 rows — check filter names/values`);
+      console.warn(`⚠️  ${tag}: 0 rows — check filter names/values`);
     } else {
-      console.log(`✅ ${dim.label}: ${parsed.rowCount} rows`);
+      console.log(`✅ ${tag}: ${parsed.rowCount} rows`);
     }
     return parsed;
   } catch (e) {
-    console.warn(`⚠️  Pull failed (${dim.label}): ${e.message}`);
+    console.warn(`⚠️  ${tag}: pull failed — ${e.message}`);
     return null;
   }
 }
@@ -337,8 +338,8 @@ async function fetchTableauData() {
   };
 
   for (const dim of dimensions) {
-    out.domestic[dim.key]    = await pullViewBreakdown(token, siteId, views.domestic, dim);
-    out.crossBorder[dim.key] = await pullViewBreakdown(token, siteId, views.crossBorder, dim);
+    out.domestic[dim.key]    = await pullViewBreakdown(token, siteId, views.domestic, dim, "Domestic");
+    out.crossBorder[dim.key] = await pullViewBreakdown(token, siteId, views.crossBorder, dim, "Cross-Border");
   }
 
   // Consider it a success if at least one breakdown returned rows
