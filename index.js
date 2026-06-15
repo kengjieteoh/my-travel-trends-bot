@@ -366,25 +366,34 @@ async function fetchTableauData() {
   const { token, siteId } = auth;
   const { server, view, dimensions } = TABLEAU_CONFIG;
 
-  // ── DIAGNOSTIC: one bare pull (no filters) on the real view to confirm it works ──
+  // ── DIAGNOSTIC: one FILTERED pull (dimension set) to confirm Custom Dimension 1 populates ──
   try {
+    const { filters } = TABLEAU_CONFIG;
+    const { start, end } = getFilterDateRange();
+    const vf = {
+      [filters.residencyField]:  filters.residencyValue,
+      [filters.startDateField]:  start,
+      [filters.endDateField]:    end,
+      [filters.comparisonField]: filters.comparisonValue,
+      [filters.dimensionField]:  "Destination Level 1",
+      [filters.splitField]:      filters.splitValues.domestic,
+    };
+    const qs = Object.entries(vf).map(([k,v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
     const dRes = await fetch(
-      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${view}/data`,
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${view}/data?${qs}`,
       { headers: { "X-Tableau-Auth": token } }
     );
     if (dRes.ok) {
       const txt = await dRes.text();
       const rows = txt.split(/\r?\n/);
-      const firstLine = (rows[0] || "").slice(0, 400);
-      console.log(`🔍 DIAG no-filter pull OK (${txt.length} chars). Headers: ${firstLine}`);
-      // Print first 8 data rows so we can see the Measure Names / Values structure
-      console.log(`🔍 DIAG sample rows:`);
+      console.log(`🔍 DIAG filtered pull OK. Headers: ${(rows[0]||"").slice(0,400)}`);
+      console.log(`🔍 DIAG sample rows (dimension should be populated):`);
       rows.slice(1, 9).forEach((r, i) => console.log(`     [${i}] ${r.slice(0, 300)}`));
     } else {
-      console.warn(`🔍 DIAG no-filter pull failed — HTTP ${dRes.status}`);
+      console.warn(`🔍 DIAG filtered pull failed — HTTP ${dRes.status}`);
     }
   } catch (e) {
-    console.warn(`🔍 DIAG no-filter pull error: ${e.message}`);
+    console.warn(`🔍 DIAG filtered pull error: ${e.message}`);
   }
 
   const out = {
@@ -404,73 +413,75 @@ async function fetchTableauData() {
 }
 
 /**
- * Parse Tableau export (tab- or comma-delimited) into ranked breakdowns.
+ * Parse Tableau "Measure Names / Measure Values" (melted) export into ranked breakdowns.
  *
- * Real Business Performance columns (dimension varies by grain):
- *   <Dimension> | Gross Sales | Gross Sales VS | Net Sales | Net Sales VS |
- *   ... | Net Booking | Net Booking VS | ... | Activity Session | Activity Session VS | ...
+ * Real structure (7 cols):
+ *   Custom Dimension 1 | Custom Dimension 2 | Custom Dimension 3 | Custom Dimension 4 | Measure Names | Dynamic sorting | Measure Values
  *
- * The dimension column is whatever sits in position 0 (e.g. "Destination Level 1",
- * "Destination City", or "Activity"). We rank by Net Sales, Net Booking, and
- * Activity Session — each paired with its "VS" comparison column for the change chip.
- *
- * @param {string} raw  - the exported data (tab-preferred, comma fallback)
- * @param {string} grain - label for this breakdown ("Destination Level 1" | "Destination City" | "Activity")
+ * Each dimension value spans MANY rows — one per measure. We:
+ *   1. group rows by the dimension value (Custom Dimension 1)
+ *   2. within each group, read Measure Values where Measure Names = "Net Sales" / "Net Booking" / "Activity Session"
+ *      and the matching "<Measure> VS" row for the change %.
  */
 function parseCompanyBreakdown(raw, grain) {
   if (!raw || !raw.trim()) return null;
   const lines = raw.trim().split(/\r?\n/).filter(Boolean);
   if (lines.length < 2) return null;
 
-  // Tableau exports are tab-delimited; fall back to comma
   const delim = lines[0].includes("\t") ? "\t" : ",";
-  const split = line => line.split(delim).map(c => c.trim().replace(/^"|"$/g, ""));
+  const splitLine = line => line.split(delim).map(c => c.trim().replace(/^"|"$/g, ""));
 
-  const headers = split(lines[0]);
+  const headers = splitLine(lines[0]);
   const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const findCol = (name) => headers.findIndex(h => norm(h) === norm(name));
+  const findCol = name => headers.findIndex(h => norm(h) === norm(name));
 
-  // Dimension is column 0 (its header is the grain name)
-  const iDim = 0;
+  const iDim       = findCol("Custom Dimension 1");
+  const iMeasName  = findCol("Measure Names");
+  const iMeasValue = findCol("Measure Values");
 
-  // Measures + their VS (comparison) columns — matched by exact normalised name
-  const measures = {
-    netSales:        { col: findCol("Net Sales"),        vs: findCol("Net Sales VS") },
-    netBooking:      { col: findCol("Net Booking"),      vs: findCol("Net Booking VS") },
-    activitySession: { col: findCol("Activity Session"), vs: findCol("Activity Session VS") },
-  };
+  if (iDim < 0 || iMeasName < 0 || iMeasValue < 0) {
+    console.warn(`   parser: expected columns not found (dim=${iDim}, name=${iMeasName}, value=${iMeasValue})`);
+    return { grain, rowCount: 0, byNetSales: [], byNetBooking: [], byActivitySession: [] };
+  }
 
   const num = v => {
     if (v == null) return 0;
     const n = parseFloat(String(v).replace(/[$,%\s]/g, ""));
     return isNaN(n) ? 0 : n;
   };
-  // VS columns may be "14.0%" or "▲14%" or "1.5p.p" — extract signed number
-  const pct = v => {
-    if (v == null) return 0;
-    const m = String(v).match(/(▼|-)?\s*([\d.]+)/);
-    if (!m) return 0;
-    const sign = (m[1] === "▼" || m[1] === "-") ? -1 : 1;
-    return sign * parseFloat(m[2]);
+
+  // group[dimValue] = { netSales, netSalesVS, netBooking, netBookingVS, activitySession, activitySessionVS }
+  const groups = {};
+  const want = {
+    "net sales":            "netSales",
+    "net sales vs":         "netSalesVS",
+    "net booking":          "netBooking",
+    "net booking vs":       "netBookingVS",
+    "activity session":     "activitySession",
+    "activity session vs":  "activitySessionVS",
   };
 
-  const rows = lines.slice(1).map(line => {
-    const c = split(line);
-    return {
-      name: c[iDim] || "Unknown",
-      netSales:        num(c[measures.netSales.col]),
-      netSalesVS:      pct(c[measures.netSales.vs]),
-      netBooking:      num(c[measures.netBooking.col]),
-      netBookingVS:    pct(c[measures.netBooking.vs]),
-      activitySession: num(c[measures.activitySession.col]),
-      activitySessionVS: pct(c[measures.activitySession.vs]),
-    };
-  }).filter(r => r.name && r.name !== "Unknown");
+  for (const line of lines.slice(1)) {
+    const c = splitLine(line);
+    const dimVal = (c[iDim] || "").trim();
+    // skip blank/placeholder dimension values
+    if (!dimVal || dimVal === "-" || dimVal.toLowerCase() === "null") continue;
 
-  const top = (key, vsKey) => [...rows]
-    .sort((a, b) => b[key] - a[key])
+    const measureName = (c[iMeasName] || "").trim().toLowerCase();
+    const key = want[measureName];
+    if (!key) continue; // not a measure we care about
+
+    if (!groups[dimVal]) groups[dimVal] = { name: dimVal };
+    groups[dimVal][key] = num(c[iMeasValue]);
+  }
+
+  const rows = Object.values(groups);
+
+  const top = (valKey, vsKey) => rows
+    .filter(r => r[valKey] != null)
+    .sort((a, b) => (b[valKey] || 0) - (a[valKey] || 0))
     .slice(0, 5)
-    .map(r => ({ name: r.name, value: r[key], change: r[vsKey] }));
+    .map(r => ({ name: r.name, value: r[valKey] || 0, change: r[vsKey] || 0 }));
 
   return {
     grain,
