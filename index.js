@@ -170,8 +170,12 @@ function getSampleCompanyData() {
 
   const domBookings  = topDomestic.reduce((s,d) => s+d.bookings, 0);
   const intlBookings = topInternational.reduce((s,d) => s+d.bookings, 0);
+  const domTravellers  = topDomestic.reduce((s,d) => s+d.travellers, 0);
+  const intlTravellers = topInternational.reduce((s,d) => s+d.travellers, 0);
+  const domSpend  = topDomestic.reduce((s,d) => s+d.spend, 0);
+  const intlSpend = topInternational.reduce((s,d) => s+d.spend, 0);
   const totalBookings = domBookings + intlBookings;
-  const totalSpend = [...topDomestic, ...topInternational].reduce((s,d) => s+d.spend, 0);
+  const totalSpend = domSpend + intlSpend;
   const domPct = Math.round(domBookings / totalBookings * 100);
 
   return {
@@ -179,6 +183,10 @@ function getSampleCompanyData() {
     totalSpend,
     domPct,
     intlPct: 100 - domPct,
+    split: {
+      domestic:      { bookings: domBookings,  travellers: domTravellers,  spend: domSpend },
+      international: { bookings: intlBookings, travellers: intlTravellers, spend: intlSpend },
+    },
     topDomestic,
     topInternational,
     topOverall: [...topDomestic, ...topInternational].sort((a,b) => b.bookings-a.bookings).slice(0,3),
@@ -314,7 +322,10 @@ function parseCompanyTravelCsv(csv) {
 
   // Aggregate
   const byDest = {};
-  let totalBookings = 0, totalSpend = 0, domBookings = 0, intlBookings = 0;
+  let totalBookings = 0, totalSpend = 0;
+  let domBookings = 0, intlBookings = 0;
+  let domSpend = 0, intlSpend = 0;
+  let domTravellers = 0, intlTravellers = 0;
 
   for (const r of rows) {
     if (!byDest[r.destination]) byDest[r.destination] = { ...r };
@@ -325,8 +336,15 @@ function parseCompanyTravelCsv(csv) {
     }
     totalBookings += r.bookings;
     totalSpend    += r.spend;
-    if (r.type.startsWith("dom")) domBookings  += r.bookings;
-    else                          intlBookings += r.bookings;
+    if (r.type.startsWith("dom")) {
+      domBookings   += r.bookings;
+      domSpend      += r.spend;
+      domTravellers += r.travellers;
+    } else {
+      intlBookings   += r.bookings;
+      intlSpend      += r.spend;
+      intlTravellers += r.travellers;
+    }
   }
 
   const sorted = Object.values(byDest).sort((a,b) => b.bookings - a.bookings);
@@ -341,6 +359,10 @@ function parseCompanyTravelCsv(csv) {
     totalSpend,
     domPct,
     intlPct,
+    split: {
+      domestic:      { bookings: domBookings,  travellers: domTravellers,  spend: domSpend },
+      international: { bookings: intlBookings, travellers: intlTravellers, spend: intlSpend },
+    },
     topDomestic:      topDom,
     topInternational: topIntl,
     topOverall:       sorted.slice(0,3),
@@ -556,6 +578,13 @@ function buildLarkCard(data, weekLabel, upcomingEvents, companyData) {
     const coTopIntl = companyData.topInternational.slice(0,3).map((d,i) => `${["🥇","🥈","🥉"][i]} ${d.destination} (${d.bookings} bookings)`).join("\n");
     const vsMarket  = buildCompanyVsMarket(companyData, data) || [];
 
+    // Visual split bar — 20 segments, proportional to domestic/international %
+    const segments = 20;
+    const domSeg = Math.round(companyData.domPct / 100 * segments);
+    const splitBar = "🟩".repeat(domSeg) + "🟦".repeat(segments - domSeg);
+
+    const sp = companyData.split || { domestic:{}, international:{} };
+
     companyElements.push(
       { tag:"hr" },
       { tag:"div", text:{ tag:"lark_md", content:"**🏢 Your Company Travel — This Week**" } },
@@ -566,6 +595,16 @@ function buildLarkCard(data, weekLabel, upcomingEvents, companyData) {
           { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**Total spend**\n💰 ${myr(companyData.totalSpend)}` } }] },
           { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**Domestic**\n🏠 ${companyData.domPct}%` } }] },
           { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**International**\n✈️ ${companyData.intlPct}%` } }] },
+        ]
+      },
+      // Visual split bar
+      { tag:"div", text:{ tag:"lark_md", content:`**📊 Domestic vs International split**\n${splitBar}\n🟩 Domestic ${companyData.domPct}%   🟦 International ${companyData.intlPct}%` } },
+      // Per-side breakdown: bookings · travellers · spend
+      {
+        tag:"column_set", flex_mode:"stretch",
+        columns: [
+          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**🏠 Domestic**\n🎫 ${(sp.domestic.bookings||0).toLocaleString()} bookings\n👥 ${(sp.domestic.travellers||0).toLocaleString()} travellers\n💰 ${myr(sp.domestic.spend||0)}` } }] },
+          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**✈️ International**\n🎫 ${(sp.international.bookings||0).toLocaleString()} bookings\n👥 ${(sp.international.travellers||0).toLocaleString()} travellers\n💰 ${myr(sp.international.spend||0)}` } }] },
         ]
       },
       {
