@@ -229,6 +229,32 @@ function getSampleCompanyData() {
   };
 }
 
+// Detected at runtime from the server (falls back to 3.21)
+let TABLEAU_API_VERSION = "3.21";
+
+/**
+ * Ask the server which API version it supports, so we don't hardcode one
+ * that a self-hosted Tableau Server rejects with HTTP 400.
+ */
+async function detectApiVersion(server) {
+  try {
+    const res = await fetch(`${server}/api/serverInfo`, { headers: { "Accept": "application/json" } });
+    if (res.ok) {
+      const j = await res.json();
+      const v = j?.serverInfo?.restApiVersion;
+      if (v) {
+        TABLEAU_API_VERSION = v;
+        console.log(`🔧 Tableau REST API version: ${v}`);
+        return v;
+      }
+    }
+    console.warn(`🔧 serverInfo returned HTTP ${res.status} — using default ${TABLEAU_API_VERSION}`);
+  } catch (e) {
+    console.warn(`🔧 Could not detect API version (${e.message}) — using default ${TABLEAU_API_VERSION}`);
+  }
+  return TABLEAU_API_VERSION;
+}
+
 /**
  * Authenticate to Tableau Server/Cloud using a Personal Access Token.
  * Returns { token, siteId } on success, null on failure.
@@ -239,8 +265,9 @@ async function tableauAuth() {
     console.warn("⚠️  Tableau credentials not configured — skipping company data");
     return null;
   }
+  await detectApiVersion(server);
   try {
-    const res = await fetch(`${server}/api/3.21/auth/signin`, {
+    const res = await fetch(`${server}/api/${TABLEAU_API_VERSION}/auth/signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({
@@ -297,7 +324,7 @@ async function pullViewBreakdown(token, siteId, viewId, dim, splitName) {
   const tag = `${splitName} · ${dim.label}`;
   try {
     const res = await fetch(
-      `${server}/api/3.21/sites/${siteId}/views/${viewId}/data?${qs}`,
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${viewId}/data?${qs}`,
       { headers: { "X-Tableau-Auth": token } }   // no Accept header — endpoint returns CSV natively (avoids HTTP 406)
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -334,7 +361,7 @@ async function fetchTableauData() {
   // ── DIAGNOSTIC: one bare pull (no filters) to isolate endpoint vs filter issues ──
   try {
     const dRes = await fetch(
-      `${server}/api/3.21/sites/${siteId}/views/${views.domestic}/data`,
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${views.domestic}/data`,
       { headers: { "X-Tableau-Auth": token } }
     );
     if (dRes.ok) {
