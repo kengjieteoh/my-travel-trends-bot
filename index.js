@@ -237,21 +237,23 @@ let TABLEAU_API_VERSION = "3.21";
  * that a self-hosted Tableau Server rejects with HTTP 400.
  */
 async function detectApiVersion(server) {
-  try {
-    const res = await fetch(`${server}/api/serverInfo`, { headers: { "Accept": "application/json" } });
-    if (res.ok) {
-      const j = await res.json();
-      const v = j?.serverInfo?.restApiVersion;
-      if (v) {
-        TABLEAU_API_VERSION = v;
-        console.log(`🔧 Tableau REST API version: ${v}`);
-        return v;
+  // Try a few known serverInfo paths — self-hosted servers vary
+  const paths = ["/api/serverInfo", "/api/3.21/serverinfo", "/api/2.4/serverinfo"];
+  for (const p of paths) {
+    try {
+      const res = await fetch(`${server}${p}`, { headers: { "Accept": "application/json" } });
+      if (res.ok) {
+        const j = await res.json();
+        const v = j?.serverInfo?.restApiVersion;
+        if (v) {
+          TABLEAU_API_VERSION = v;
+          console.log(`🔧 Tableau REST API version: ${v} (via ${p})`);
+          return v;
+        }
       }
-    }
-    console.warn(`🔧 serverInfo returned HTTP ${res.status} — using default ${TABLEAU_API_VERSION}`);
-  } catch (e) {
-    console.warn(`🔧 Could not detect API version (${e.message}) — using default ${TABLEAU_API_VERSION}`);
+    } catch (e) { /* try next */ }
   }
+  console.warn(`🔧 Could not detect API version — using default ${TABLEAU_API_VERSION}`);
   return TABLEAU_API_VERSION;
 }
 
@@ -367,10 +369,11 @@ async function fetchTableauData() {
     if (lRes.ok) {
       const j = await lRes.json();
       const vs = j?.views?.view || [];
-      console.log(`🔍 DIAG: ${vs.length} views visible. Matches for Business/Domestic/Cross-Border:`);
-      vs.filter(v => /business|domestic|cross|border|performance/i.test(v.name + " " + (v.contentUrl||"")))
-        .slice(0, 30)
-        .forEach(v => console.log(`     • "${v.name}"  id=${v.id}  url=${v.contentUrl}`));
+      console.log(`🔍 DIAG: ${vs.length} views visible.`);
+      // Show ALL views whose URL is under the CompanyDashboard workbook
+      const cd = vs.filter(v => /companydashboard/i.test(v.contentUrl||""));
+      console.log(`🔍 DIAG: ${cd.length} views in CompanyDashboard workbook:`);
+      cd.slice(0, 60).forEach(v => console.log(`     • "${v.name}"  id=${v.id}  url=${v.contentUrl}`));
     } else {
       console.warn(`🔍 DIAG list-views HTTP ${lRes.status}`);
     }
