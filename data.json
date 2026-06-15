@@ -1,58 +1,34 @@
 {
-  "summary": "Malaysians are actively searching for school holiday destinations, with family-friendly beaches and theme parks topping the list. Both domestic and international bookings are surging as families plan the break.",
-  "domesticShare": 42,
-  "internationalShare": 58,
-  "topKeyword": "school holiday package",
+  "summary": "Malaysian travel searches are steady, with a healthy mix of domestic leisure trips and international explorations. Beach destinations and city breaks remain the most popular choices.",
+  "domesticShare": 36,
+  "internationalShare": 64,
+  "topKeyword": "budget flight",
   "topAttraction": "Universal Studios Singapore",
   "topActivity": "Snorkelling tour",
   "domestic": [
     {
-      "destination": "Genting Highlands",
-      "state": "Pahang",
-      "category": "theme park",
+      "destination": "Penang",
+      "state": "Penang",
+      "category": "city",
       "peak": [
         1,
         2,
         3,
+        4,
         5,
         6,
         7,
         8,
-        11,
-        12
-      ],
-      "offpeak": [
-        4,
         9,
-        10
-      ],
-      "score": 106,
-      "change": 29,
-      "volume": 106,
-      "reason": "School holiday family travel — popular theme park destination"
-    },
-    {
-      "destination": "Sabah",
-      "state": "Sabah",
-      "category": "nature",
-      "peak": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        8
-      ],
-      "offpeak": [
-        1,
-        2,
+        10,
         11,
         12
       ],
-      "score": 105,
-      "change": 34,
-      "volume": 105,
-      "reason": "School holiday family travel — popular nature destination"
+      "offpeak": [],
+      "score": 88,
+      "change": 33,
+      "volume": 88,
+      "reason": "Seasonal peak — popular city destination"
     },
     {
       "destination": "Cameron Highlands",
@@ -73,87 +49,88 @@
         12
       ],
       "offpeak": [],
-      "score": 104,
-      "change": 24,
-      "volume": 104,
-      "reason": "School holiday family travel — popular nature destination"
+      "score": 87,
+      "change": 39,
+      "volume": 87,
+      "reason": "Seasonal peak — popular nature destination"
     },
     {
-      "destination": "Johor Bahru",
-      "state": "Johor",
-      "category": "city",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
-      "offpeak": [],
-      "score": 103,
-      "change": 44,
-      "volume": 103,
-      "reason": "School holiday family travel — popular city destination"
-    },
-    {
-      "destination": "Melaka",
-      "state": "Melaka",
-      "category": "heritage",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
-      "offpeak": [],
-      "score": 102,
-      "change": -3,
-      "volume": 102,
-      "reason": "School holiday family travel — popular heritage destination"
-    }
-  ],
-  "international": [
-    {
-      "destination": "Bali",
-      "country": "Indonesia",
-      "countryCode": "ID",
+      "destination": "Kota Kinabalu",
+      "state": "Sabah",
       "category": "beach",
       "peak": [
+        3,
+        4,
+        5,
         6,
         7,
         8,
-        9,
-        10,
-        11,
-        12
+        9
       ],
       "offpeak": [
         1,
         2,
+        10,
+        11,
+        12
+      ],
+      "score": 87,
+      "change": 6,
+      "volume": 87,
+      "reason": "Seasonal peak — popular beach destination"
+    },
+    {
+      "destination": "Kota Bharu",
+      "state": "Kelantan",
+      "category": "culture",
+      "peak": [
         3,
         4,
-        5
+        5,
+        6,
+        7,
+        8,
+        9
       ],
-      "score": 107,
-      "change": 26,
-      "volume": 107,
-      "reason": "Holiday season demand — popular beach destination"
+      "offpeak": [
+        10,
+        11,
+        12,
+        1,
+        2
+      ],
+      "score": 87,
+      "change": 9,
+      "volume": 87,
+      "reason": "Seasonal peak — popular culture destination"
     },
+    {
+      "destination": "Pulau Perhentian",
+      "state": "Terengganu",
+      "category": "island",
+      "peak": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "offpeak": [
+        10,
+        11,
+        12,
+        1,
+        2
+      ],
+      "score": 79,
+      "change": -5,
+      "volume": 79,
+      "reason": "Seasonal peak — popular island destination"
+    }
+  ],
+  "international": [
     {
       "destination": "Singapore",
       "country": "Singapore",
@@ -174,10 +151,10 @@
         12
       ],
       "offpeak": [],
-      "score": 104,
-      "change": 12,
-      "volume": 104,
-      "reason": "Holiday season demand — popular city destination"
+      "score": 89,
+      "change": 29,
+      "volume": 89,
+      "reason": "Trending — popular city destination"
     },
     {
       "destination": "Istanbul",
@@ -200,36 +177,62 @@
         8,
         12
       ],
-      "score": 92,
-      "change": 18,
-      "volume": 92,
-      "reason": "Holiday season demand — popular culture destination"
+      "score": 79,
+      "change": 24,
+      "volume": 79,
+      "reason": "Trending — popular culture destination"
     },
     {
-      "destination": "Seoul",
-      "country": "South Korea",
-      "countryCode": "KR",
-      "category": "city",
+      "destination": "Bali",
+      "country": "Indonesia",
+      "countryCode": "ID",
+      "category": "beach",
       "peak": [
-        3,
-        4,
-        5,
+        6,
+        7,
+        8,
         9,
         10,
-        11
+        11,
+        12
       ],
       "offpeak": [
         1,
         2,
+        3,
+        4,
+        5
+      ],
+      "score": 72,
+      "change": 2,
+      "volume": 72,
+      "reason": "Trending — popular beach destination"
+    },
+    {
+      "destination": "Bangkok",
+      "country": "Thailand",
+      "countryCode": "TH",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        11,
+        12
+      ],
+      "offpeak": [
         6,
         7,
         8,
-        12
+        9,
+        10
       ],
-      "score": 64,
-      "change": 33,
-      "volume": 64,
-      "reason": "Holiday season demand — popular city destination"
+      "score": 43,
+      "change": 17,
+      "volume": 43,
+      "reason": "Trending — popular city destination"
     },
     {
       "destination": "Tokyo",
@@ -252,10 +255,10 @@
         8,
         12
       ],
-      "score": 60,
-      "change": -6,
-      "volume": 60,
-      "reason": "Holiday season demand — popular city destination"
+      "score": 41,
+      "change": -3,
+      "volume": 41,
+      "reason": "Trending — popular city destination"
     }
   ],
   "domesticActivities": [
@@ -272,8 +275,8 @@
         9
       ],
       "score": 80,
-      "change": 32,
-      "volume": 62
+      "change": 18,
+      "volume": 66
     },
     {
       "name": "Mt. Kinabalu climb",
@@ -287,8 +290,8 @@
         8
       ],
       "score": 80,
-      "change": 37,
-      "volume": 79
+      "change": 28,
+      "volume": 84
     },
     {
       "name": "Penang food walk",
@@ -308,7 +311,7 @@
         12
       ],
       "score": 80,
-      "change": 26,
+      "change": 33,
       "volume": 73
     }
   ],
@@ -328,8 +331,8 @@
         12
       ],
       "score": 80,
-      "change": 35,
-      "volume": 82
+      "change": 18,
+      "volume": 69
     },
     {
       "name": "Bali rice terrace cycling",
@@ -342,8 +345,8 @@
         10
       ],
       "score": 80,
-      "change": 14,
-      "volume": 51
+      "change": 28,
+      "volume": 89
     },
     {
       "name": "Harajuku street food tour",
@@ -359,8 +362,8 @@
         10
       ],
       "score": 80,
-      "change": 17,
-      "volume": 83
+      "change": 26,
+      "volume": 71
     }
   ],
   "domCategories": {
@@ -376,14 +379,14 @@
     "Theme Park": 22
   },
   "hotKeywords": [
-    "school holiday package",
-    "family trip",
-    "theme park",
-    "beach holiday",
-    "island hopping",
-    "kids activities",
-    "budget family travel",
-    "resort booking"
+    "budget flight",
+    "travel deals",
+    "weekend getaway",
+    "hotel promo",
+    "AirAsia sale",
+    "family package",
+    "beach resort",
+    "halal travel"
   ],
   "liveInsights": [
     {
@@ -406,15 +409,15 @@
     }
   ],
   "dataSource": "calendar",
-  "weekLabel": "1 Jun 2026 – 7 Jun 2026",
+  "weekLabel": "8 Jun 2026 – 14 Jun 2026",
   "upcomingEvents": [
     {
       "name": "Awal Muharam",
       "date": "2026-06-17",
       "season": "hijrah",
       "kind": "public_holiday",
-      "daysAway": 8
+      "daysAway": 2
     }
   ],
-  "updatedAt": "2026-06-09T09:58:07.957Z"
+  "updatedAt": "2026-06-15T02:02:11.163Z"
 }
