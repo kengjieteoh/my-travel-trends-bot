@@ -1,20 +1,39 @@
 // ============================================================
-// MY Travel Trends Bot — Weekly Lark Report
+// MY Travel Trends Bot — Weekly Lark Report  (index.js)
 // Runs every Monday 9:00 AM MYT (01:00 UTC)
-// No API key needed — uses official calendar data + web search
+// v2 — Tableau company data integration + --test flag
+//
+// USAGE:
+//   node index.js          → normal run (real Tableau, or placeholder)
+//   node index.js --test   → sends a test card with SAMPLE company data
 // ============================================================
 
 const fs = require("fs");
 
 const WEBHOOKS = [
   "https://open.larksuite.com/open-apis/bot/v2/hook/319c37c6-0842-47bd-9108-466ab25b3c2a",
-  // "https://open.larksuite.com/open-apis/bot/v2/hook/YOUR_GROUP_WEBHOOK_HERE",
 ];
 
 // ============================================================
+// TABLEAU CONFIG
+// Fill in your Tableau Server details.
+// Use a Personal Access Token (PAT) — recommended over password.
+// Tableau Cloud example: server = "https://prod-apnortheast-a.online.tableau.com"
+// ============================================================
+
+const TABLEAU_CONFIG = {
+  server:    process.env.TABLEAU_SERVER    || "https://your-tableau-server.com",
+  site:      process.env.TABLEAU_SITE      || "",          // "" = default site
+  patName:   process.env.TABLEAU_PAT_NAME  || "",          // Personal Access Token name
+  patSecret: process.env.TABLEAU_PAT_SECRET|| "",          // Personal Access Token secret
+  // Target view to pull company travel data from:
+  // Set ONE of these — viewId is faster if you know it, viewName is easier to read
+  viewId:    process.env.TABLEAU_VIEW_ID   || "",          // e.g. "abc123-def456"
+  viewName:  process.env.TABLEAU_VIEW_NAME || "Travel Bookings Overview", // fallback search name
+};
+
+// ============================================================
 // OFFICIAL 2026 CALENDAR DATA
-// Source 1: MOE Academic Calendar 2026 (Surat Siaran KPM Bil.3 2025)
-// Source 2: Federal Public Holidays 2026 (Jabatan Perdana Menteri)
 // ============================================================
 
 const SCHOOL_HOLIDAYS = [
@@ -91,13 +110,13 @@ const ACTIVITIES_DOM = [
 ];
 
 const ACTIVITIES_INTL = [
-  { name:"Universal Studios Singapore", location:"Singapore",      peak:[1,2,3,5,6,7,8,11,12] },
-  { name:"Phi Phi Island day trip",      location:"Krabi, Thailand", peak:[11,12,1,2,3,4] },
-  { name:"Tokyo DisneySea",              location:"Tokyo, Japan",   peak:[3,4,5,9,10,11] },
-  { name:"Bali rice terrace cycling",    location:"Ubud, Bali",     peak:[6,7,8,9,10] },
-  { name:"Seoul K-pop experience",       location:"Seoul, Korea",   peak:[3,4,5,9,10,11] },
-  { name:"Burj Khalifa visit",           location:"Dubai, UAE",     peak:[10,11,12,1,2,3] },
-  { name:"Harajuku street food tour",    location:"Tokyo, Japan",   peak:[3,4,5,6,7,8,9,10] },
+  { name:"Universal Studios Singapore", location:"Singapore",        peak:[1,2,3,5,6,7,8,11,12] },
+  { name:"Phi Phi Island day trip",      location:"Krabi, Thailand",  peak:[11,12,1,2,3,4] },
+  { name:"Tokyo DisneySea",              location:"Tokyo, Japan",     peak:[3,4,5,9,10,11] },
+  { name:"Bali rice terrace cycling",    location:"Ubud, Bali",       peak:[6,7,8,9,10] },
+  { name:"Seoul K-pop experience",       location:"Seoul, Korea",     peak:[3,4,5,9,10,11] },
+  { name:"Burj Khalifa visit",           location:"Dubai, UAE",       peak:[10,11,12,1,2,3] },
+  { name:"Harajuku street food tour",    location:"Tokyo, Japan",     peak:[3,4,5,6,7,8,9,10] },
   { name:"Phuket sunset cruise",         location:"Phuket, Thailand", peak:[11,12,1,2,3,4] },
 ];
 
@@ -110,15 +129,11 @@ const KEYWORDS_BY_SEASON = {
   default:  ["budget flight","travel deals","weekend getaway","hotel promo","AirAsia sale","family package","beach resort","halal travel"],
 };
 
-// ============================================================
-// LIVE NEWS INSIGHTS (web search — no API key needed)
-// ============================================================
-
 const LIVE_INSIGHTS = {
   "Jun": [
-    { headline:"Malaysia's East Coast bookings surge 40% QoQ — Kuala Terengganu leads with 60% growth", source:"Zafigo", url:"https://zafigo.com/news/malaysia-east-coast-domestic-travel-boom-2026/", impact:"East Coast domestic travel significantly outperforming traditional hotspots" },
+    { headline:"Malaysia's East Coast bookings surge 40% QoQ — Kuala Terengganu leads with 60% growth", source:"Zafigo", url:"https://zafigo.com/", impact:"East Coast domestic travel significantly outperforming traditional hotspots" },
     { headline:"Malaysian Gen Z plans 4–6 trips/year in 2026, favouring communal travel", source:"Agoda Travel Outlook", url:"https://www.travelandtourworld.com", impact:"Higher travel frequency driving weekend & short-break searches" },
-    { headline:"Japan travel surging — Malaysians exploring beyond Tokyo into Kyushu & Tohoku", source:"Diper Tour Analysis", url:"https://natlawreview.com/press-releases/diper-tour-analysis-travel-trends-malaysians-planning-japan-trips-2026", impact:"Japan search volume up, shift toward regional experiences" },
+    { headline:"Japan travel surging — Malaysians exploring beyond Tokyo into Kyushu & Tohoku", source:"Diper Tour Analysis", url:"https://natlawreview.com/", impact:"Japan search volume up, shift toward regional experiences" },
   ],
   "default": [
     { headline:"Malaysia tourism enters 2026 with strong momentum — international arrivals rising", source:"Travel And Tour World", url:"https://www.travelandtourworld.com", impact:"Positive travel sentiment boosting both inbound and outbound searches" },
@@ -130,6 +145,252 @@ const LIVE_INSIGHTS = {
 function getLiveInsights() {
   const month = new Date().toLocaleString("en", { month:"short" });
   return LIVE_INSIGHTS[month] || LIVE_INSIGHTS["default"];
+}
+
+// ============================================================
+// TABLEAU INTEGRATION
+// ============================================================
+
+/**
+ * Sample company travel data for --test mode.
+ * Mirrors the exact shape parseCompanyTravelCsv() returns,
+ * so the Lark card renders identically to a real Tableau pull.
+ */
+function getSampleCompanyData() {
+  const topDomestic = [
+    { destination:"Kota Kinabalu", country:"Malaysia", type:"domestic",      bookings:48, travellers:96, spend:62000 },
+    { destination:"Langkawi",      country:"Malaysia", type:"domestic",      bookings:35, travellers:70, spend:41000 },
+    { destination:"Penang",        country:"Malaysia", type:"domestic",      bookings:29, travellers:52, spend:33500 },
+  ];
+  const topInternational = [
+    { destination:"Bangkok",   country:"Thailand",  type:"international", bookings:41, travellers:78, spend:88000 },
+    { destination:"Tokyo",     country:"Japan",     type:"international", bookings:33, travellers:61, spend:142000 },
+    { destination:"Singapore", country:"Singapore", type:"international", bookings:27, travellers:49, spend:39000 },
+  ];
+
+  const domBookings  = topDomestic.reduce((s,d) => s+d.bookings, 0);
+  const intlBookings = topInternational.reduce((s,d) => s+d.bookings, 0);
+  const totalBookings = domBookings + intlBookings;
+  const totalSpend = [...topDomestic, ...topInternational].reduce((s,d) => s+d.spend, 0);
+  const domPct = Math.round(domBookings / totalBookings * 100);
+
+  return {
+    totalBookings,
+    totalSpend,
+    domPct,
+    intlPct: 100 - domPct,
+    topDomestic,
+    topInternational,
+    topOverall: [...topDomestic, ...topInternational].sort((a,b) => b.bookings-a.bookings).slice(0,3),
+    dataRows: topDomestic.length + topInternational.length,
+  };
+}
+
+/**
+ * Authenticate to Tableau Server/Cloud using a Personal Access Token.
+ * Returns { token, siteId } on success, null on failure.
+ */
+async function tableauAuth() {
+  const { server, site, patName, patSecret } = TABLEAU_CONFIG;
+  if (!patName || !patSecret || server.includes("your-tableau-server")) {
+    console.warn("⚠️  Tableau credentials not configured — skipping company data");
+    return null;
+  }
+  try {
+    const res = await fetch(`${server}/api/3.21/auth/signin`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        credentials: {
+          personalAccessTokenName: patName,
+          personalAccessTokenSecret: patSecret,
+          site: { contentUrl: site }
+        }
+      })
+    });
+    if (!res.ok) throw new Error(`Auth HTTP ${res.status}`);
+    const json = await res.json();
+    const token  = json.credentials?.token;
+    const siteId = json.credentials?.site?.id;
+    if (!token) throw new Error("No token in auth response");
+    console.log("✅ Tableau authenticated");
+    return { token, siteId };
+  } catch (e) {
+    console.warn(`⚠️  Tableau auth failed: ${e.message}`);
+    return null;
+  }
+}
+
+/**
+ * Resolve the target view ID.
+ * Uses TABLEAU_CONFIG.viewId directly if set, otherwise searches by name.
+ */
+async function resolveViewId(token, siteId) {
+  const { server, viewId, viewName } = TABLEAU_CONFIG;
+  if (viewId) return viewId;
+
+  try {
+    const res = await fetch(
+      `${server}/api/3.21/sites/${siteId}/views?filter=name:eq:${encodeURIComponent(viewName)}`,
+      { headers: { "X-Tableau-Auth": token, "Accept": "application/json" } }
+    );
+    if (!res.ok) throw new Error(`Views HTTP ${res.status}`);
+    const json = await res.json();
+    const views = json.views?.view || [];
+    if (!views.length) throw new Error(`No view found matching "${viewName}"`);
+    console.log(`✅ Resolved view: "${views[0].name}" (${views[0].id})`);
+    return views[0].id;
+  } catch (e) {
+    console.warn(`⚠️  View lookup failed: ${e.message}`);
+    return null;
+  }
+}
+
+/**
+ * Download CSV data from a Tableau view and parse into company travel stats.
+ * Expected CSV columns (flexible — maps by header name):
+ *   Destination | Country | Trip Type (Domestic/International) | Bookings | Travellers | Spend (MYR)
+ */
+async function fetchTableauData() {
+  // --test flag: skip Tableau entirely and return realistic sample data
+  if (process.argv.includes("--test")) {
+    console.log("🧪 --test mode: using sample company data");
+    return getSampleCompanyData();
+  }
+
+  const auth = await tableauAuth();
+  if (!auth) return null;
+
+  const { token, siteId } = auth;
+  const { server } = TABLEAU_CONFIG;
+
+  const vid = await resolveViewId(token, siteId);
+  if (!vid) return null;
+
+  try {
+    const res = await fetch(
+      `${server}/api/3.21/sites/${siteId}/views/${vid}/data`,
+      { headers: { "X-Tableau-Auth": token, "Accept": "text/csv" } }
+    );
+    if (!res.ok) throw new Error(`Data fetch HTTP ${res.status}`);
+    const csv = await res.text();
+    return parseCompanyTravelCsv(csv);
+  } catch (e) {
+    console.warn(`⚠️  Tableau data fetch failed: ${e.message}`);
+    return null;
+  }
+}
+
+/**
+ * Parse CSV into a structured company travel summary.
+ * Tolerant of different column orderings and capitalisation.
+ */
+function parseCompanyTravelCsv(csv) {
+  const lines = csv.trim().split("\n").filter(Boolean);
+  if (lines.length < 2) return null;
+
+  // Normalise headers
+  const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g,"_"));
+  const col = name => headers.findIndex(h => h.includes(name));
+
+  const iDest      = col("destination");
+  const iCountry   = col("country");
+  const iType      = col("type");        // domestic / international
+  const iBookings  = col("booking");
+  const iTraveller = col("traveller");
+  const iSpend     = col("spend");
+
+  const rows = lines.slice(1).map(line => {
+    const cells = line.split(",").map(c => c.trim().replace(/^"|"$/g,""));
+    return {
+      destination: iDest      >= 0 ? cells[iDest]      : "Unknown",
+      country:     iCountry   >= 0 ? cells[iCountry]   : "",
+      type:        iType      >= 0 ? cells[iType].toLowerCase() : "unknown",
+      bookings:    iBookings  >= 0 ? parseFloat(cells[iBookings])  || 0 : 0,
+      travellers:  iTraveller >= 0 ? parseFloat(cells[iTraveller]) || 0 : 0,
+      spend:       iSpend     >= 0 ? parseFloat(cells[iSpend])     || 0 : 0,
+    };
+  });
+
+  // Aggregate
+  const byDest = {};
+  let totalBookings = 0, totalSpend = 0, domBookings = 0, intlBookings = 0;
+
+  for (const r of rows) {
+    if (!byDest[r.destination]) byDest[r.destination] = { ...r };
+    else {
+      byDest[r.destination].bookings   += r.bookings;
+      byDest[r.destination].travellers += r.travellers;
+      byDest[r.destination].spend      += r.spend;
+    }
+    totalBookings += r.bookings;
+    totalSpend    += r.spend;
+    if (r.type.startsWith("dom")) domBookings  += r.bookings;
+    else                          intlBookings += r.bookings;
+  }
+
+  const sorted = Object.values(byDest).sort((a,b) => b.bookings - a.bookings);
+  const topDom  = sorted.filter(d => d.type.startsWith("dom")).slice(0,3);
+  const topIntl = sorted.filter(d => !d.type.startsWith("dom")).slice(0,3);
+
+  const domPct  = totalBookings ? Math.round(domBookings  / totalBookings * 100) : 0;
+  const intlPct = 100 - domPct;
+
+  return {
+    totalBookings,
+    totalSpend,
+    domPct,
+    intlPct,
+    topDomestic:      topDom,
+    topInternational: topIntl,
+    topOverall:       sorted.slice(0,3),
+    dataRows:         rows.length,
+  };
+}
+
+// ============================================================
+// COMPARISON HELPER
+// ============================================================
+
+/**
+ * Compare company top destinations vs market trends.
+ * Returns short insight strings for the Lark card.
+ */
+function buildCompanyVsMarket(companyData, trends) {
+  if (!companyData) return null;
+  const insights = [];
+
+  const mktTopDom  = trends.domestic[0]?.destination;
+  const coTopDom   = companyData.topDomestic[0]?.destination;
+  if (mktTopDom && coTopDom) {
+    insights.push(mktTopDom === coTopDom
+      ? `✅ Your team aligns with the market — **${coTopDom}** is #1 for both`
+      : `📌 Market trending: **${mktTopDom}** — your team's top: **${coTopDom}**`
+    );
+  }
+
+  const mktTopIntl = trends.international[0]?.destination;
+  const coTopIntl  = companyData.topInternational[0]?.destination;
+  if (mktTopIntl && coTopIntl) {
+    insights.push(mktTopIntl === coTopIntl
+      ? `✅ International alignment — **${coTopIntl}** tops both market & your bookings`
+      : `📌 Market trending: **${mktTopIntl}** — your team's top: **${coTopIntl}**`
+    );
+  }
+
+  const mktDomPct = trends.domesticShare;
+  const coDomPct  = companyData.domPct;
+  const diff = coDomPct - mktDomPct;
+  if (Math.abs(diff) >= 5) {
+    insights.push(diff > 0
+      ? `🏠 Your team books more domestic (${coDomPct}%) vs market avg (${mktDomPct}%)`
+      : `✈️ Your team skews more international (${companyData.intlPct}%) vs market (${100-mktDomPct}%)`
+    );
+  } else {
+    insights.push(`⚖️ Domestic/international split mirrors market — ${coDomPct}% vs ${mktDomPct}% domestic`);
+  }
+
+  return insights;
 }
 
 // ============================================================
@@ -181,8 +442,8 @@ function isNearHoliday(date, days=14) {
 function generateTrends(weekStart, upcomingEvents) {
   const month = weekStart.getMonth()+1;
   const schoolHol = isSchoolHoliday(weekStart);
-  const nearHol = isNearHoliday(weekStart);
-  const season = nearHol?.season || (schoolHol ? "school" : "default");
+  const nearHol   = isNearHoliday(weekStart);
+  const season    = nearHol?.season || (schoolHol ? "school" : "default");
 
   const score = (d, isSchool) => {
     let s = d.peak.includes(month) ? 70 : 40;
@@ -192,15 +453,15 @@ function generateTrends(weekStart, upcomingEvents) {
   };
 
   const domestic = [...DOMESTIC]
-    .map(d => ({ ...d, score: score(d, schoolHol), change: Math.floor(Math.random()*35)+(schoolHol?15:5), volume: 0 }))
+    .map(d => ({ ...d, score: score(d, schoolHol), change: Math.floor(Math.random()*35)+(schoolHol?15:5), volume:0 }))
     .sort((a,b) => b.score-a.score).slice(0,5);
 
   const international = [...INTERNATIONAL]
-    .map(d => ({ ...d, score: score(d, schoolHol), change: Math.floor(Math.random()*40)+(schoolHol?10:-5), volume: 0 }))
+    .map(d => ({ ...d, score: score(d, schoolHol), change: Math.floor(Math.random()*40)+(schoolHol?10:-5), volume:0 }))
     .sort((a,b) => b.score-a.score).slice(0,5);
 
   if (international[4]) international[4].change = -Math.floor(Math.random()*8+2);
-  if (domestic[4]) domestic[4].change = -Math.floor(Math.random()*5+1);
+  if (domestic[4])      domestic[4].change      = -Math.floor(Math.random()*5+1);
 
   domestic.forEach(d => { d.volume = d.score; d.reason = `${season==="school"?"School holiday family travel — ":"Seasonal peak — "}popular ${d.category} destination`; });
   international.forEach(d => { d.volume = d.score; d.reason = `${season==="school"?"Holiday season demand — ":"Trending — "}popular ${d.category} destination`; });
@@ -213,9 +474,9 @@ function generateTrends(weekStart, upcomingEvents) {
     .map(a => ({ ...a, score: a.peak.includes(month)?80:40, change: Math.floor(Math.random()*35+10), volume: Math.floor(Math.random()*40+50) }))
     .sort((a,b) => b.score-a.score).slice(0,3);
 
-  const domCategories = { Beach:82, Nature:65, City:48, Heritage:31 };
+  const domCategories  = { Beach:82, Nature:65, City:48, Heritage:31 };
   const intlCategories = { City:78, Culture:61, Beach:44, "Theme Park":22 };
-  const domesticShare = schoolHol ? 42 : 36;
+  const domesticShare  = schoolHol ? 42 : 36;
 
   const summaries = {
     school:  "Malaysians are actively searching for school holiday destinations, with family-friendly beaches and theme parks topping the list. Both domestic and international bookings are surging as families plan the break.",
@@ -230,27 +491,27 @@ function generateTrends(weekStart, upcomingEvents) {
     summary: summaries[season] || summaries.default,
     domesticShare,
     internationalShare: 100 - domesticShare,
-    topKeyword: (KEYWORDS_BY_SEASON[season]||KEYWORDS_BY_SEASON.default)[0],
+    topKeyword:   (KEYWORDS_BY_SEASON[season]||KEYWORDS_BY_SEASON.default)[0],
     topAttraction: intlActs[0]?.name || "Universal Studios Singapore",
-    topActivity: domActs[0]?.name || "Island hopping",
+    topActivity:   domActs[0]?.name  || "Island hopping",
     domestic,
     international,
-    domesticActivities: domActs,
+    domesticActivities:      domActs,
     internationalActivities: intlActs,
     domCategories,
     intlCategories,
-    hotKeywords: KEYWORDS_BY_SEASON[season] || KEYWORDS_BY_SEASON.default,
+    hotKeywords:  KEYWORDS_BY_SEASON[season] || KEYWORDS_BY_SEASON.default,
     liveInsights: getLiveInsights(),
-    dataSource: "calendar",
+    dataSource:   "calendar",
   };
 }
 
 // ============================================================
-// SAVE data.json for GitHub Pages dashboard
+// SAVE data.json
 // ============================================================
 
-function saveDataJson(trends, weekLabel, upcomingEvents) {
-  const payload = { ...trends, weekLabel, upcomingEvents, updatedAt: new Date().toISOString() };
+function saveDataJson(trends, weekLabel, upcomingEvents, companyData) {
+  const payload = { ...trends, weekLabel, upcomingEvents, companyData: companyData || null, updatedAt: new Date().toISOString() };
   fs.writeFileSync("data.json", JSON.stringify(payload, null, 2));
   console.log("✅ data.json saved");
 }
@@ -259,9 +520,10 @@ function saveDataJson(trends, weekLabel, upcomingEvents) {
 // BUILD LARK CARD
 // ============================================================
 
-function buildLarkCard(data, weekLabel, upcomingEvents) {
+function buildLarkCard(data, weekLabel, upcomingEvents, companyData) {
   const flag = c => ({MY:"🇲🇾",TH:"🇹🇭",JP:"🇯🇵",KR:"🇰🇷",ID:"🇮🇩",SG:"🇸🇬",CN:"🇨🇳",VN:"🇻🇳",TR:"🇹🇷",AE:"🇦🇪"}[c]||"🌍");
-  const chip = v => v>=0 ? `▲ ${v}%` : `▼ ${Math.abs(v)}%`;
+  const chip = v => v >= 0 ? `▲ ${v}%` : `▼ ${Math.abs(v)}%`;
+  const myr  = n => `MYR ${n >= 1_000_000 ? (n/1_000_000).toFixed(1)+"M" : n >= 1_000 ? (n/1_000).toFixed(0)+"K" : n}`;
 
   const domRows = data.domestic.slice(0,5).map(t =>
     `${flag("MY")} **${t.destination}** (${t.state})  ${chip(t.change)}\n_${t.reason}_`
@@ -271,13 +533,8 @@ function buildLarkCard(data, weekLabel, upcomingEvents) {
     `${flag(t.countryCode)} **${t.destination}**, ${t.country}  ${chip(t.change)}\n_${t.reason}_`
   ).join("\n\n");
 
-  const domActs = data.domesticActivities.map(a =>
-    `🏠 **${a.name}** — ${a.location}  ${chip(a.change)}`
-  ).join("\n");
-
-  const intlActs = data.internationalActivities.map(a =>
-    `✈️ **${a.name}** — ${a.location}  ${chip(a.change)}`
-  ).join("\n");
+  const domActs  = data.domesticActivities.map(a      => `🏠 **${a.name}** — ${a.location}  ${chip(a.change)}`).join("\n");
+  const intlActs = data.internationalActivities.map(a => `✈️ **${a.name}** — ${a.location}  ${chip(a.change)}`).join("\n");
 
   const eventLines = upcomingEvents.slice(0,4).map(e =>
     e.kind==="public_holiday"
@@ -290,6 +547,42 @@ function buildLarkCard(data, weekLabel, upcomingEvents) {
   const insights = (data.liveInsights||[]).slice(0,3).map(i =>
     `📰 **${i.headline}**\n_${i.source} · ${i.impact}_`
   ).join("\n\n");
+
+  // ── Company data section ──────────────────────────────────
+  const companyElements = [];
+
+  if (companyData) {
+    const coTopDom  = companyData.topDomestic.slice(0,3).map((d,i) => `${["🥇","🥈","🥉"][i]} ${d.destination} (${d.bookings} bookings)`).join("\n");
+    const coTopIntl = companyData.topInternational.slice(0,3).map((d,i) => `${["🥇","🥈","🥉"][i]} ${d.destination} (${d.bookings} bookings)`).join("\n");
+    const vsMarket  = buildCompanyVsMarket(companyData, data) || [];
+
+    companyElements.push(
+      { tag:"hr" },
+      { tag:"div", text:{ tag:"lark_md", content:"**🏢 Your Company Travel — This Week**" } },
+      {
+        tag:"column_set", flex_mode:"stretch",
+        columns: [
+          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**Total bookings**\n🎫 ${companyData.totalBookings.toLocaleString()}` } }] },
+          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**Total spend**\n💰 ${myr(companyData.totalSpend)}` } }] },
+          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**Domestic**\n🏠 ${companyData.domPct}%` } }] },
+          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**International**\n✈️ ${companyData.intlPct}%` } }] },
+        ]
+      },
+      {
+        tag:"column_set", flex_mode:"stretch",
+        columns: [
+          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**🏠 Top domestic routes**\n${coTopDom||"_No data_"}` } }] },
+          { tag:"column", width:"weighted", weight:1, elements:[{ tag:"div", text:{ tag:"lark_md", content:`**✈️ Top international routes**\n${coTopIntl||"_No data_"}` } }] },
+        ]
+      },
+      { tag:"div", text:{ tag:"lark_md", content:`**📊 Company vs Market**\n${vsMarket.join("\n")||"_Insufficient data for comparison_"}` } },
+    );
+  } else {
+    companyElements.push(
+      { tag:"hr" },
+      { tag:"div", text:{ tag:"lark_md", content:"**🏢 Your Company Travel**\n_Tableau not connected — configure TABLEAU_CONFIG to enable company data_" } },
+    );
+  }
 
   return {
     msg_type: "interactive",
@@ -335,8 +628,12 @@ function buildLarkCard(data, weekLabel, upcomingEvents) {
         { tag:"div", text:{ tag:"lark_md", content:`**📰 Live travel insights**\n${insights}` } },
         { tag:"hr" },
         { tag:"div", text:{ tag:"lark_md", content:`**🔥 Hot search keywords**\n${keywords}` } },
+
+        // ── Company data section ─────────────────────────────
+        ...companyElements,
+
         { tag:"hr" },
-        { tag:"div", text:{ tag:"lark_md", content:"**📊 Data sources**\n📅 JPM Federal Holiday Calendar 2026\n🏫 MOE Academic Calendar 2026 (Surat Siaran KPM Bil.3 2025)\n📰 Travel news: Zafigo, Agoda Travel Outlook, Travel And Tour World\n📈 Seasonal travel patterns & booking signals" } },
+        { tag:"div", text:{ tag:"lark_md", content:`**📊 Data sources**\n📅 JPM Federal Holiday Calendar 2026\n🏫 MOE Academic Calendar 2026 (Surat Siaran KPM Bil.3 2025)\n📰 Travel news: Zafigo, Agoda Travel Outlook, Travel And Tour World\n📈 Seasonal travel patterns & booking signals${companyData ? "\n🏢 Company bookings: Tableau" : ""}` } },
         { tag:"note", elements:[{ tag:"plain_text", content:`Auto-generated by MY Travel Trends Bot · Week of ${weekLabel} · Sent every Monday 9:00 AM MYT` }] }
       ]
     }
@@ -349,8 +646,8 @@ function buildLarkCard(data, weekLabel, upcomingEvents) {
 
 async function sendToLark(payload, webhook) {
   const res = await fetch(webhook, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
   const json = await res.json();
@@ -371,11 +668,20 @@ async function main() {
   console.log(`📆 Upcoming events: ${upcomingEvents.length}`);
 
   const trends = generateTrends(start, upcomingEvents);
-  console.log("✅ Trends generated");
+  console.log("✅ Market trends generated");
 
-  saveDataJson(trends, weekLabel, upcomingEvents);
+  // Fetch Tableau company data (graceful — won't block the report if it fails)
+  console.log("🔌 Fetching Tableau company data...");
+  const companyData = await fetchTableauData();
+  if (companyData) {
+    console.log(`✅ Company data: ${companyData.dataRows} rows, ${companyData.totalBookings} bookings`);
+  } else {
+    console.log("ℹ️  No company data — report will send without it");
+  }
 
-  const card = buildLarkCard(trends, weekLabel, upcomingEvents);
+  saveDataJson(trends, weekLabel, upcomingEvents, companyData);
+
+  const card = buildLarkCard(trends, weekLabel, upcomingEvents, companyData);
 
   for (const webhook of WEBHOOKS) {
     try {
