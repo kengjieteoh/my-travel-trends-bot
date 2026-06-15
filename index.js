@@ -374,8 +374,12 @@ async function fetchTableauData() {
     );
     if (dRes.ok) {
       const txt = await dRes.text();
-      const firstLine = (txt.split(/\r?\n/)[0] || "").slice(0, 400);
+      const rows = txt.split(/\r?\n/);
+      const firstLine = (rows[0] || "").slice(0, 400);
       console.log(`🔍 DIAG no-filter pull OK (${txt.length} chars). Headers: ${firstLine}`);
+      // Print first 8 data rows so we can see the Measure Names / Values structure
+      console.log(`🔍 DIAG sample rows:`);
+      rows.slice(1, 9).forEach((r, i) => console.log(`     [${i}] ${r.slice(0, 300)}`));
     } else {
       console.warn(`🔍 DIAG no-filter pull failed — HTTP ${dRes.status}`);
     }
