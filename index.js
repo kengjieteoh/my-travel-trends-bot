@@ -27,11 +27,12 @@ const TABLEAU_CONFIG = {
   patName:   process.env.TABLEAU_PAT_NAME  || "",          // Personal Access Token name
   patSecret: process.env.TABLEAU_PAT_SECRET|| "",          // Personal Access Token secret
 
-  // The two split views (IDs taken from the dashboard URLs)
-  views: {
-    domestic:    process.env.TABLEAU_VIEW_DOMESTIC    || "6a629e4b-6abd-4f16-83a6-083ac77b86aa",
-    crossBorder: process.env.TABLEAU_VIEW_CROSSBORDER || "cfe93ddc-364f-42d5-add5-fae59e4772e3",
-  },
+  // Single worksheet view — the split (Domestic / Cross-Border) is a FILTER, not separate views.
+  // Real view IDs discovered via list-views diagnostic (CompanyDashboard workbook):
+  //   Business Performance              0208cd01-2ede-4f19-a5dc-967da9950ab8
+  //   Merchant and Activity Performance bd1f5741-045f-4e9b-a24b-0aeb44625f5b
+  //   Traffic Performance               bf7a888b-d076-4ffc-ae9b-01afb1f14470
+  view: process.env.TABLEAU_VIEW_ID || "0208cd01-2ede-4f19-a5dc-967da9950ab8",
 
   // ── FILTER NAMES (must match Tableau exactly — edit here if a pull returns wrong/empty data) ──
   filters: {
@@ -40,12 +41,15 @@ const TABLEAU_CONFIG = {
     startDateField: "Start Date",
     endDateField:   "End Date",
     comparisonField: "Comparison",
-    comparisonValue: "WoW",            // "week before" — confirm the exact dropdown label
+    comparisonValue: "WoW",            // "week before"
     dimensionField:  "Custom Dimension 1",
+    // The Domestic / Cross-Border split — applied as a filter value.
+    // Confirm the exact field name + values in the dashboard's Domestic Flag filter.
+    splitField:      "Domestic Flag",
+    splitValues:     { domestic: "Domestic", crossBorder: "Cross-Border" },
   },
 
   // The three dimension grains, by the EXACT labels in the Custom Dimension 1 dropdown.
-  // If a label is slightly off, fix it here — one line per grain.
   dimensions: [
     { key: "destinationL1", label: "Destination Level 1" },
     { key: "city",          label: "Destination City" },
@@ -307,9 +311,10 @@ function getFilterDateRange() {
  * Pull one view's data for one dimension grain, applying all filters via vf_ params.
  * Returns parsed breakdown, or null on failure.
  */
-async function pullViewBreakdown(token, siteId, viewId, dim, splitName) {
+async function pullViewBreakdown(token, siteId, viewId, dim, splitKey) {
   const { server, filters } = TABLEAU_CONFIG;
   const { start, end } = getFilterDateRange();
+  const splitName = splitKey === "domestic" ? "Domestic" : "Cross-Border";
 
   // Build vf_ filter query string. Field names with spaces are URL-encoded.
   const vf = {
@@ -318,6 +323,7 @@ async function pullViewBreakdown(token, siteId, viewId, dim, splitName) {
     [filters.endDateField]:    end,
     [filters.comparisonField]: filters.comparisonValue,
     [filters.dimensionField]:  dim.label,
+    [filters.splitField]:      filters.splitValues[splitKey],
   };
   const qs = Object.entries(vf)
     .map(([k, v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
@@ -358,41 +364,20 @@ async function fetchTableauData() {
   const auth = await tableauAuth();
   if (!auth) return null;
   const { token, siteId } = auth;
-  const { server, views, dimensions } = TABLEAU_CONFIG;
+  const { server, view, dimensions } = TABLEAU_CONFIG;
 
-  // ── DIAGNOSTIC: list views on the site so we can find the real worksheet view IDs ──
-  try {
-    const lRes = await fetch(
-      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views?pageSize=1000`,
-      { headers: { "X-Tableau-Auth": token, "Accept": "application/json" } }
-    );
-    if (lRes.ok) {
-      const j = await lRes.json();
-      const vs = j?.views?.view || [];
-      console.log(`🔍 DIAG: ${vs.length} views visible.`);
-      // Show ALL views whose URL is under the CompanyDashboard workbook
-      const cd = vs.filter(v => /companydashboard/i.test(v.contentUrl||""));
-      console.log(`🔍 DIAG: ${cd.length} views in CompanyDashboard workbook:`);
-      cd.slice(0, 60).forEach(v => console.log(`     • "${v.name}"  id=${v.id}  url=${v.contentUrl}`));
-    } else {
-      console.warn(`🔍 DIAG list-views HTTP ${lRes.status}`);
-    }
-  } catch (e) {
-    console.warn(`🔍 DIAG list-views error: ${e.message}`);
-  }
-
-  // ── DIAGNOSTIC: one bare pull (no filters) to isolate endpoint vs filter issues ──
+  // ── DIAGNOSTIC: one bare pull (no filters) on the real view to confirm it works ──
   try {
     const dRes = await fetch(
-      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${views.domestic}/data`,
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${view}/data`,
       { headers: { "X-Tableau-Auth": token } }
     );
     if (dRes.ok) {
       const txt = await dRes.text();
-      const firstLine = (txt.split(/\r?\n/)[0] || "").slice(0, 300);
+      const firstLine = (txt.split(/\r?\n/)[0] || "").slice(0, 400);
       console.log(`🔍 DIAG no-filter pull OK (${txt.length} chars). Headers: ${firstLine}`);
     } else {
-      console.warn(`🔍 DIAG no-filter pull failed — HTTP ${dRes.status} (likely wrong view ID)`);
+      console.warn(`🔍 DIAG no-filter pull failed — HTTP ${dRes.status}`);
     }
   } catch (e) {
     console.warn(`🔍 DIAG no-filter pull error: ${e.message}`);
@@ -405,11 +390,10 @@ async function fetchTableauData() {
   };
 
   for (const dim of dimensions) {
-    out.domestic[dim.key]    = await pullViewBreakdown(token, siteId, views.domestic, dim, "Domestic");
-    out.crossBorder[dim.key] = await pullViewBreakdown(token, siteId, views.crossBorder, dim, "Cross-Border");
+    out.domestic[dim.key]    = await pullViewBreakdown(token, siteId, view, dim, "domestic");
+    out.crossBorder[dim.key] = await pullViewBreakdown(token, siteId, view, dim, "crossBorder");
   }
 
-  // Consider it a success if at least one breakdown returned rows
   const any = [...Object.values(out.domestic), ...Object.values(out.crossBorder)]
     .some(b => b && b.rowCount > 0);
   return any ? out : null;
