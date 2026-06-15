@@ -7,6 +7,29 @@
   "topActivity": "Snorkelling tour",
   "domestic": [
     {
+      "destination": "Sabah",
+      "state": "Sabah",
+      "category": "nature",
+      "peak": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "offpeak": [
+        1,
+        2,
+        11,
+        12
+      ],
+      "score": 88,
+      "change": 35,
+      "volume": 88,
+      "reason": "Seasonal peak — popular nature destination"
+    },
+    {
       "destination": "Johor Bahru",
       "state": "Johor",
       "category": "city",
@@ -25,10 +48,58 @@
         12
       ],
       "offpeak": [],
-      "score": 89,
-      "change": 17,
-      "volume": 89,
+      "score": 86,
+      "change": 26,
+      "volume": 86,
       "reason": "Seasonal peak — popular city destination"
+    },
+    {
+      "destination": "Penang",
+      "state": "Penang",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 84,
+      "change": 20,
+      "volume": 84,
+      "reason": "Seasonal peak — popular city destination"
+    },
+    {
+      "destination": "Melaka",
+      "state": "Melaka",
+      "category": "heritage",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 84,
+      "change": 9,
+      "volume": 84,
+      "reason": "Seasonal peak — popular heritage destination"
     },
     {
       "destination": "Kota Bharu",
@@ -50,113 +121,13 @@
         1,
         2
       ],
-      "score": 89,
-      "change": 34,
-      "volume": 89,
+      "score": 83,
+      "change": -4,
+      "volume": 83,
       "reason": "Seasonal peak — popular culture destination"
-    },
-    {
-      "destination": "Kota Kinabalu",
-      "state": "Sabah",
-      "category": "beach",
-      "peak": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9
-      ],
-      "offpeak": [
-        1,
-        2,
-        10,
-        11,
-        12
-      ],
-      "score": 88,
-      "change": 5,
-      "volume": 88,
-      "reason": "Seasonal peak — popular beach destination"
-    },
-    {
-      "destination": "Kuching",
-      "state": "Sarawak",
-      "category": "heritage",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8
-      ],
-      "offpeak": [
-        9,
-        10,
-        11,
-        12
-      ],
-      "score": 86,
-      "change": 17,
-      "volume": 86,
-      "reason": "Seasonal peak — popular heritage destination"
-    },
-    {
-      "destination": "Melaka",
-      "state": "Melaka",
-      "category": "heritage",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
-      "offpeak": [],
-      "score": 86,
-      "change": -2,
-      "volume": 86,
-      "reason": "Seasonal peak — popular heritage destination"
     }
   ],
   "international": [
-    {
-      "destination": "Istanbul",
-      "country": "Turkey",
-      "countryCode": "TR",
-      "category": "culture",
-      "peak": [
-        4,
-        5,
-        6,
-        9,
-        10,
-        11
-      ],
-      "offpeak": [
-        1,
-        2,
-        3,
-        7,
-        8,
-        12
-      ],
-      "score": 87,
-      "change": 16,
-      "volume": 87,
-      "reason": "Trending — popular culture destination"
-    },
     {
       "destination": "Singapore",
       "country": "Singapore",
@@ -177,9 +148,9 @@
         12
       ],
       "offpeak": [],
-      "score": 80,
-      "change": 22,
-      "volume": 80,
+      "score": 85,
+      "change": 20,
+      "volume": 85,
       "reason": "Trending — popular city destination"
     },
     {
@@ -203,36 +174,36 @@
         4,
         5
       ],
-      "score": 70,
-      "change": -2,
-      "volume": 70,
+      "score": 82,
+      "change": -3,
+      "volume": 82,
       "reason": "Trending — popular beach destination"
     },
     {
-      "destination": "Dubai",
-      "country": "UAE",
-      "countryCode": "AE",
-      "category": "city",
+      "destination": "Istanbul",
+      "country": "Turkey",
+      "countryCode": "TR",
+      "category": "culture",
       "peak": [
+        4,
+        5,
+        6,
+        9,
         10,
-        11,
-        12,
+        11
+      ],
+      "offpeak": [
         1,
         2,
         3,
-        4
-      ],
-      "offpeak": [
-        5,
-        6,
         7,
         8,
-        9
+        12
       ],
-      "score": 40,
-      "change": 14,
-      "volume": 40,
-      "reason": "Trending — popular city destination"
+      "score": 71,
+      "change": 6,
+      "volume": 71,
+      "reason": "Trending — popular culture destination"
     },
     {
       "destination": "Ho Chi Minh City",
@@ -255,10 +226,36 @@
         10,
         11
       ],
-      "score": 40,
-      "change": -3,
-      "volume": 40,
+      "score": 44,
+      "change": 7,
+      "volume": 44,
       "reason": "Trending — popular city destination"
+    },
+    {
+      "destination": "Phuket",
+      "country": "Thailand",
+      "countryCode": "TH",
+      "category": "beach",
+      "peak": [
+        11,
+        12,
+        1,
+        2,
+        3,
+        4
+      ],
+      "offpeak": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "score": 39,
+      "change": -2,
+      "volume": 39,
+      "reason": "Trending — popular beach destination"
     }
   ],
   "domesticActivities": [
@@ -275,8 +272,8 @@
         9
       ],
       "score": 80,
-      "change": 32,
-      "volume": 85
+      "change": 26,
+      "volume": 84
     },
     {
       "name": "Mt. Kinabalu climb",
@@ -290,8 +287,8 @@
         8
       ],
       "score": 80,
-      "change": 26,
-      "volume": 50
+      "change": 16,
+      "volume": 71
     },
     {
       "name": "Penang food walk",
@@ -311,8 +308,8 @@
         12
       ],
       "score": 80,
-      "change": 33,
-      "volume": 54
+      "change": 25,
+      "volume": 58
     }
   ],
   "internationalActivities": [
@@ -331,8 +328,8 @@
         12
       ],
       "score": 80,
-      "change": 31,
-      "volume": 61
+      "change": 42,
+      "volume": 62
     },
     {
       "name": "Bali rice terrace cycling",
@@ -345,8 +342,8 @@
         10
       ],
       "score": 80,
-      "change": 35,
-      "volume": 89
+      "change": 43,
+      "volume": 63
     },
     {
       "name": "Harajuku street food tour",
@@ -362,8 +359,8 @@
         10
       ],
       "score": 80,
-      "change": 32,
-      "volume": 74
+      "change": 40,
+      "volume": 65
     }
   ],
   "domCategories": {
@@ -420,5 +417,5 @@
     }
   ],
   "companyData": null,
-  "updatedAt": "2026-06-15T08:57:55.979Z"
+  "updatedAt": "2026-06-15T09:15:31.906Z"
 }
