@@ -7,9 +7,9 @@
   "topActivity": "Snorkelling tour",
   "domestic": [
     {
-      "destination": "Penang",
-      "state": "Penang",
-      "category": "city",
+      "destination": "Cameron Highlands",
+      "state": "Pahang",
+      "category": "nature",
       "peak": [
         1,
         2,
@@ -25,10 +25,35 @@
         12
       ],
       "offpeak": [],
-      "score": 88,
-      "change": 7,
-      "volume": 88,
-      "reason": "Seasonal peak — popular city destination"
+      "score": 89,
+      "change": 13,
+      "volume": 89,
+      "reason": "Seasonal peak — popular nature destination"
+    },
+    {
+      "destination": "Pulau Perhentian",
+      "state": "Terengganu",
+      "category": "island",
+      "peak": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "offpeak": [
+        10,
+        11,
+        12,
+        1,
+        2
+      ],
+      "score": 89,
+      "change": 39,
+      "volume": 89,
+      "reason": "Seasonal peak — popular island destination"
     },
     {
       "destination": "Melaka",
@@ -49,35 +74,34 @@
         12
       ],
       "offpeak": [],
-      "score": 84,
+      "score": 86,
       "change": 12,
-      "volume": 84,
+      "volume": 86,
       "reason": "Seasonal peak — popular heritage destination"
     },
     {
-      "destination": "Kota Kinabalu",
-      "state": "Sabah",
-      "category": "beach",
+      "destination": "Penang",
+      "state": "Penang",
+      "category": "city",
       "peak": [
+        1,
+        2,
         3,
         4,
         5,
         6,
         7,
         8,
-        9
-      ],
-      "offpeak": [
-        1,
-        2,
+        9,
         10,
         11,
         12
       ],
-      "score": 81,
-      "change": 9,
-      "volume": 81,
-      "reason": "Seasonal peak — popular beach destination"
+      "offpeak": [],
+      "score": 85,
+      "change": 25,
+      "volume": 85,
+      "reason": "Seasonal peak — popular city destination"
     },
     {
       "destination": "Kota Bharu",
@@ -99,34 +123,10 @@
         1,
         2
       ],
-      "score": 80,
-      "change": 30,
-      "volume": 80,
+      "score": 84,
+      "change": -3,
+      "volume": 84,
       "reason": "Seasonal peak — popular culture destination"
-    },
-    {
-      "destination": "Johor Bahru",
-      "state": "Johor",
-      "category": "city",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
-      "offpeak": [],
-      "score": 78,
-      "change": -4,
-      "volume": 78,
-      "reason": "Seasonal peak — popular city destination"
     }
   ],
   "international": [
@@ -151,9 +151,9 @@
         4,
         5
       ],
-      "score": 83,
-      "change": 2,
-      "volume": 83,
+      "score": 81,
+      "change": -4,
+      "volume": 81,
       "reason": "Trending — popular beach destination"
     },
     {
@@ -177,9 +177,9 @@
         8,
         12
       ],
-      "score": 82,
-      "change": 13,
-      "volume": 82,
+      "score": 77,
+      "change": 1,
+      "volume": 77,
       "reason": "Trending — popular culture destination"
     },
     {
@@ -203,8 +203,34 @@
       ],
       "offpeak": [],
       "score": 72,
-      "change": 26,
+      "change": 1,
       "volume": 72,
+      "reason": "Trending — popular city destination"
+    },
+    {
+      "destination": "Osaka",
+      "country": "Japan",
+      "countryCode": "JP",
+      "category": "city",
+      "peak": [
+        3,
+        4,
+        5,
+        9,
+        10,
+        11
+      ],
+      "offpeak": [
+        1,
+        2,
+        6,
+        7,
+        8,
+        12
+      ],
+      "score": 44,
+      "change": 33,
+      "volume": 44,
       "reason": "Trending — popular city destination"
     },
     {
@@ -228,36 +254,10 @@
         10,
         11
       ],
-      "score": 44,
-      "change": 5,
-      "volume": 44,
-      "reason": "Trending — popular city destination"
-    },
-    {
-      "destination": "Phuket",
-      "country": "Thailand",
-      "countryCode": "TH",
-      "category": "beach",
-      "peak": [
-        11,
-        12,
-        1,
-        2,
-        3,
-        4
-      ],
-      "offpeak": [
-        5,
-        6,
-        7,
-        8,
-        9,
-        10
-      ],
       "score": 43,
-      "change": -2,
+      "change": -4,
       "volume": 43,
-      "reason": "Trending — popular beach destination"
+      "reason": "Trending — popular city destination"
     }
   ],
   "domesticActivities": [
@@ -274,8 +274,8 @@
         9
       ],
       "score": 80,
-      "change": 32,
-      "volume": 83
+      "change": 11,
+      "volume": 77
     },
     {
       "name": "Mt. Kinabalu climb",
@@ -289,8 +289,8 @@
         8
       ],
       "score": 80,
-      "change": 26,
-      "volume": 66
+      "change": 37,
+      "volume": 79
     },
     {
       "name": "Penang food walk",
@@ -311,7 +311,7 @@
       ],
       "score": 80,
       "change": 23,
-      "volume": 85
+      "volume": 58
     }
   ],
   "internationalActivities": [
@@ -330,8 +330,8 @@
         12
       ],
       "score": 80,
-      "change": 38,
-      "volume": 89
+      "change": 35,
+      "volume": 78
     },
     {
       "name": "Bali rice terrace cycling",
@@ -344,7 +344,7 @@
         10
       ],
       "score": 80,
-      "change": 27,
+      "change": 17,
       "volume": 58
     },
     {
@@ -361,8 +361,8 @@
         10
       ],
       "score": 80,
-      "change": 16,
-      "volume": 51
+      "change": 30,
+      "volume": 63
     }
   ],
   "domCategories": {
@@ -938,9 +938,9 @@
       "end": "2026-06-14"
     },
     "vsMarket": [
-      "📌 Market top domestic: **Penang** · company: **JP**",
+      "📌 Market top domestic: **Cameron Highlands** · company: **JP**",
       "📌 Market top outbound: **Bali** · company: **JP**"
     ]
   },
-  "updatedAt": "2026-06-16T03:02:02.106Z"
+  "updatedAt": "2026-06-16T03:09:50.864Z"
 }
