@@ -359,7 +359,32 @@ async function fetchTableauData() {
   const auth = await tableauAuth();
   if (!auth) return null;
   const { token, siteId } = auth;
-  const { customViews, dimensions } = TABLEAU_CONFIG;
+  const { server, customViews, dimensions } = TABLEAU_CONFIG;
+
+  // ── DIAGNOSTIC: test one Custom View — bare (no filter) vs with date filter ──
+  const testId = customViews.domestic.destinationL1;
+  try {
+    const bare = await fetch(
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${testId}/data`,
+      { headers: { "X-Tableau-Auth": token } }
+    );
+    console.log(`🔍 DIAG custom-view BARE pull: HTTP ${bare.status}`);
+    if (bare.ok) {
+      const txt = await bare.text();
+      const rows = txt.split(/\r?\n/);
+      console.log(`     headers: ${(rows[0]||"").slice(0,300)}`);
+      rows.slice(1,5).forEach((r,i) => console.log(`     [${i}] ${r.slice(0,250)}`));
+    }
+  } catch (e) { console.warn(`🔍 DIAG bare error: ${e.message}`); }
+
+  try {
+    const { start, end } = getFilterDateRange();
+    const withDate = await fetch(
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${testId}/data?vf_${encodeURIComponent("Start Date")}=${start}&vf_${encodeURIComponent("End Date")}=${end}`,
+      { headers: { "X-Tableau-Auth": token } }
+    );
+    console.log(`🔍 DIAG custom-view WITH-DATE pull: HTTP ${withDate.status}`);
+  } catch (e) { console.warn(`🔍 DIAG date error: ${e.message}`); }
 
   const out = {
     domestic:    { destinationL1: null, city: null, activity: null },
