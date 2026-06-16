@@ -366,34 +366,43 @@ async function fetchTableauData() {
   const { token, siteId } = auth;
   const { server, view, dimensions } = TABLEAU_CONFIG;
 
-  // ── DIAGNOSTIC: one FILTERED pull (dimension set) to confirm Custom Dimension 1 populates ──
+  // ── DIAGNOSTIC: try several parameter-name spellings to find which populates the dimension ──
   try {
     const { filters } = TABLEAU_CONFIG;
     const { start, end } = getFilterDateRange();
-    const vf = {
+    const baseVf = {
       [filters.residencyField]:  filters.residencyValue,
       [filters.startDateField]:  start,
       [filters.endDateField]:    end,
       [filters.comparisonField]: filters.comparisonValue,
-      [filters.dimensionField]:  "Destination Level 1",
       [filters.splitField]:      filters.splitValues.domestic,
     };
-    const qs = Object.entries(vf).map(([k,v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
-    const dRes = await fetch(
-      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${view}/data?${qs}`,
-      { headers: { "X-Tableau-Auth": token } }
-    );
-    if (dRes.ok) {
-      const txt = await dRes.text();
+    // Candidate parameter names to try for the dimension selector
+    const candidates = [
+      "Custom Dimension 1", "Custom Dimension1", "CustomDimension1",
+      "Parameter 1", "Dimension 1", "p.Custom Dimension 1", "Custom Dim 1",
+    ];
+    for (const cand of candidates) {
+      const vf = { ...baseVf, [cand]: "Destination Level 1" };
+      const qs = Object.entries(vf).map(([k,v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
+      const r = await fetch(
+        `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${view}/data?${qs}`,
+        { headers: { "X-Tableau-Auth": token } }
+      );
+      if (!r.ok) { console.log(`   param "${cand}": HTTP ${r.status}`); continue; }
+      const txt = await r.text();
       const rows = txt.split(/\r?\n/);
-      console.log(`🔍 DIAG filtered pull OK. Headers: ${(rows[0]||"").slice(0,400)}`);
-      console.log(`🔍 DIAG sample rows (dimension should be populated):`);
-      rows.slice(1, 9).forEach((r, i) => console.log(`     [${i}] ${r.slice(0, 300)}`));
-    } else {
-      console.warn(`🔍 DIAG filtered pull failed — HTTP ${dRes.status}`);
+      // Check if Custom Dimension 1 column (col 0) now has real values in first few rows
+      const sample = rows.slice(1, 6).map(x => (x.split(",")[0]||"").trim()).filter(Boolean);
+      const populated = sample.some(s => s && s !== "-" && s.toLowerCase() !== "null");
+      console.log(`   param "${cand}": ${populated ? "✅ POPULATED → "+sample.slice(0,3).join("/") : "blank"}`);
+      if (populated) {
+        console.log(`🔍 DIAG: WINNER parameter name = "${cand}"`);
+        break;
+      }
     }
   } catch (e) {
-    console.warn(`🔍 DIAG filtered pull error: ${e.message}`);
+    console.warn(`🔍 DIAG param-probe error: ${e.message}`);
   }
 
   const out = {
