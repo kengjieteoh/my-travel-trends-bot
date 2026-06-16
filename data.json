@@ -7,34 +7,33 @@
   "topActivity": "Snorkelling tour",
   "domestic": [
     {
-      "destination": "Genting Highlands",
-      "state": "Pahang",
-      "category": "theme park",
+      "destination": "Johor Bahru",
+      "state": "Johor",
+      "category": "city",
       "peak": [
         1,
         2,
         3,
+        4,
         5,
         6,
         7,
         8,
+        9,
+        10,
         11,
         12
       ],
-      "offpeak": [
-        4,
-        9,
-        10
-      ],
-      "score": 88,
-      "change": 25,
-      "volume": 88,
-      "reason": "Seasonal peak — popular theme park destination"
+      "offpeak": [],
+      "score": 87,
+      "change": 32,
+      "volume": 87,
+      "reason": "Seasonal peak — popular city destination"
     },
     {
-      "destination": "Kuala Terengganu",
-      "state": "Terengganu",
-      "category": "heritage",
+      "destination": "Kota Bharu",
+      "state": "Kelantan",
+      "category": "culture",
       "peak": [
         3,
         4,
@@ -51,32 +50,57 @@
         1,
         2
       ],
-      "score": 88,
-      "change": 12,
-      "volume": 88,
-      "reason": "Seasonal peak — popular heritage destination"
+      "score": 86,
+      "change": 23,
+      "volume": 86,
+      "reason": "Seasonal peak — popular culture destination"
     },
     {
-      "destination": "Sabah",
-      "state": "Sabah",
-      "category": "nature",
+      "destination": "Melaka",
+      "state": "Melaka",
+      "category": "heritage",
       "peak": [
+        1,
+        2,
         3,
         4,
         5,
         6,
         7,
-        8
-      ],
-      "offpeak": [
-        1,
-        2,
+        8,
+        9,
+        10,
         11,
         12
       ],
-      "score": 87,
-      "change": 24,
-      "volume": 87,
+      "offpeak": [],
+      "score": 83,
+      "change": 31,
+      "volume": 83,
+      "reason": "Seasonal peak — popular heritage destination"
+    },
+    {
+      "destination": "Cameron Highlands",
+      "state": "Pahang",
+      "category": "nature",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 78,
+      "change": 7,
+      "volume": 78,
       "reason": "Seasonal peak — popular nature destination"
     },
     {
@@ -99,64 +123,13 @@
         11,
         12
       ],
-      "score": 87,
-      "change": 21,
-      "volume": 87,
-      "reason": "Seasonal peak — popular beach destination"
-    },
-    {
-      "destination": "Kuching",
-      "state": "Sarawak",
-      "category": "heritage",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8
-      ],
-      "offpeak": [
-        9,
-        10,
-        11,
-        12
-      ],
-      "score": 86,
+      "score": 78,
       "change": -5,
-      "volume": 86,
-      "reason": "Seasonal peak — popular heritage destination"
+      "volume": 78,
+      "reason": "Seasonal peak — popular beach destination"
     }
   ],
   "international": [
-    {
-      "destination": "Bali",
-      "country": "Indonesia",
-      "countryCode": "ID",
-      "category": "beach",
-      "peak": [
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
-      "offpeak": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
-      "score": 88,
-      "change": 13,
-      "volume": 88,
-      "reason": "Trending — popular beach destination"
-    },
     {
       "destination": "Singapore",
       "country": "Singapore",
@@ -177,9 +150,9 @@
         12
       ],
       "offpeak": [],
-      "score": 81,
-      "change": 16,
-      "volume": 81,
+      "score": 83,
+      "change": 13,
+      "volume": 83,
       "reason": "Trending — popular city destination"
     },
     {
@@ -203,17 +176,44 @@
         8,
         12
       ],
-      "score": 70,
-      "change": 33,
-      "volume": 70,
+      "score": 81,
+      "change": 24,
+      "volume": 81,
       "reason": "Trending — popular culture destination"
     },
     {
-      "destination": "Phuket",
-      "country": "Thailand",
-      "countryCode": "TH",
+      "destination": "Bali",
+      "country": "Indonesia",
+      "countryCode": "ID",
       "category": "beach",
       "peak": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "score": 73,
+      "change": 0,
+      "volume": 73,
+      "reason": "Trending — popular beach destination"
+    },
+    {
+      "destination": "Dubai",
+      "country": "UAE",
+      "countryCode": "AE",
+      "category": "city",
+      "peak": [
+        10,
         11,
         12,
         1,
@@ -226,18 +226,17 @@
         6,
         7,
         8,
-        9,
-        10
+        9
       ],
-      "score": 42,
-      "change": 1,
-      "volume": 42,
-      "reason": "Trending — popular beach destination"
+      "score": 44,
+      "change": 11,
+      "volume": 44,
+      "reason": "Trending — popular city destination"
     },
     {
-      "destination": "Osaka",
-      "country": "Japan",
-      "countryCode": "JP",
+      "destination": "Seoul",
+      "country": "South Korea",
+      "countryCode": "KR",
       "category": "city",
       "peak": [
         3,
@@ -255,9 +254,9 @@
         8,
         12
       ],
-      "score": 40,
-      "change": -4,
-      "volume": 40,
+      "score": 42,
+      "change": -8,
+      "volume": 42,
       "reason": "Trending — popular city destination"
     }
   ],
@@ -275,8 +274,8 @@
         9
       ],
       "score": 80,
-      "change": 33,
-      "volume": 59
+      "change": 23,
+      "volume": 81
     },
     {
       "name": "Mt. Kinabalu climb",
@@ -290,7 +289,7 @@
         8
       ],
       "score": 80,
-      "change": 36,
+      "change": 30,
       "volume": 71
     },
     {
@@ -312,7 +311,7 @@
       ],
       "score": 80,
       "change": 31,
-      "volume": 58
+      "volume": 63
     }
   ],
   "internationalActivities": [
@@ -331,8 +330,8 @@
         12
       ],
       "score": 80,
-      "change": 22,
-      "volume": 70
+      "change": 28,
+      "volume": 53
     },
     {
       "name": "Bali rice terrace cycling",
@@ -345,7 +344,7 @@
         10
       ],
       "score": 80,
-      "change": 29,
+      "change": 35,
       "volume": 83
     },
     {
@@ -362,8 +361,8 @@
         10
       ],
       "score": 80,
-      "change": 15,
-      "volume": 81
+      "change": 44,
+      "volume": 83
     }
   ],
   "domCategories": {
@@ -939,9 +938,9 @@
       "end": "2026-06-14"
     },
     "vsMarket": [
-      "📌 Market top domestic: **Genting Highlands** · company: **JP**",
-      "📌 Market top outbound: **Bali** · company: **JP**"
+      "📌 Market top domestic: **Johor Bahru** · company: **JP**",
+      "📌 Market top outbound: **Singapore** · company: **JP**"
     ]
   },
-  "updatedAt": "2026-06-16T02:20:59.355Z"
+  "updatedAt": "2026-06-16T02:29:59.635Z"
 }
