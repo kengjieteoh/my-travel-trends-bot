@@ -27,29 +27,29 @@ const TABLEAU_CONFIG = {
   patName:   process.env.TABLEAU_PAT_NAME  || "",          // Personal Access Token name
   patSecret: process.env.TABLEAU_PAT_SECRET|| "",          // Personal Access Token secret
 
-  // Single worksheet view — the split (Domestic / Cross-Border) is a FILTER, not separate views.
-  // Real view IDs discovered via list-views diagnostic (CompanyDashboard workbook):
-  //   Business Performance              0208cd01-2ede-4f19-a5dc-967da9950ab8
-  //   Merchant and Activity Performance bd1f5741-045f-4e9b-a24b-0aeb44625f5b
-  //   Traffic Performance               bf7a888b-d076-4ffc-ae9b-01afb1f14470
-  view: process.env.TABLEAU_VIEW_ID || "0208cd01-2ede-4f19-a5dc-967da9950ab8",
-
-  // ── FILTER NAMES (must match Tableau exactly — edit here if a pull returns wrong/empty data) ──
-  filters: {
-    residencyField: "User Residency Country",
-    residencyValue: "MY",
-    startDateField: "Start Date",
-    endDateField:   "End Date",
-    comparisonField: "Comparison",
-    comparisonValue: "WoW",            // "week before"
-    dimensionField:  "Custom Dimension 1",
-    // The Domestic / Cross-Border split — applied as a filter value.
-    // Confirm the exact field name + values in the dashboard's Domestic Flag filter.
-    splitField:      "Domestic Flag",
-    splitValues:     { domestic: "Domestic", crossBorder: "Cross-Border" },
+  // ── 6 CUSTOM VIEWS ──
+  // Each Custom View has the parameter (Custom Dimension 1) + split baked in.
+  // The bot pulls each by ID and overlays only the weekly date filter.
+  customViews: {
+    domestic: {
+      destinationL1: process.env.TABLEAU_VIEW_DOM_DEST1 || "89ba8b21-3b4c-4003-91cc-64b408848013",
+      city:          process.env.TABLEAU_VIEW_DOM_CITY  || "3eed9b00-6f15-47b7-8732-b81746398782",
+      activity:      process.env.TABLEAU_VIEW_DOM_ACT   || "4b93735b-a022-46b9-ac25-16f55f1b15a2",
+    },
+    crossBorder: {
+      destinationL1: process.env.TABLEAU_VIEW_XB_DEST1  || "4eddb6af-05ca-4f79-9e24-a24c5087e0f4",
+      city:          process.env.TABLEAU_VIEW_XB_CITY   || "773e07b7-de9f-497e-807a-7d4dad82ab72",
+      activity:      process.env.TABLEAU_VIEW_XB_ACT    || "f5b25a2e-b320-4d30-b892-80ff11ed1bcf",
+    },
   },
 
-  // The three dimension grains, by the EXACT labels in the Custom Dimension 1 dropdown.
+  // ── FILTER NAMES — only the date window is overlaid per run; everything else is baked into the Custom View ──
+  filters: {
+    startDateField: "Start Date",
+    endDateField:   "End Date",
+  },
+
+  // Dimension grains (label only used for logging now — parameter is baked into each view)
   dimensions: [
     { key: "destinationL1", label: "Destination Level 1" },
     { key: "city",          label: "Destination City" },
@@ -311,19 +311,14 @@ function getFilterDateRange() {
  * Pull one view's data for one dimension grain, applying all filters via vf_ params.
  * Returns parsed breakdown, or null on failure.
  */
-async function pullViewBreakdown(token, siteId, viewId, dim, splitKey) {
+async function pullViewBreakdown(token, siteId, viewId, dim, splitName) {
   const { server, filters } = TABLEAU_CONFIG;
   const { start, end } = getFilterDateRange();
-  const splitName = splitKey === "domestic" ? "Domestic" : "Cross-Border";
 
-  // Build vf_ filter query string. Field names with spaces are URL-encoded.
+  // Only overlay the date window — parameter, split, residency, comparison are baked into the Custom View.
   const vf = {
-    [filters.residencyField]:  filters.residencyValue,
-    [filters.startDateField]:  start,
-    [filters.endDateField]:    end,
-    [filters.comparisonField]: filters.comparisonValue,
-    [filters.dimensionField]:  dim.label,
-    [filters.splitField]:      filters.splitValues[splitKey],
+    [filters.startDateField]: start,
+    [filters.endDateField]:   end,
   };
   const qs = Object.entries(vf)
     .map(([k, v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
@@ -333,13 +328,13 @@ async function pullViewBreakdown(token, siteId, viewId, dim, splitKey) {
   try {
     const res = await fetch(
       `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${viewId}/data?${qs}`,
-      { headers: { "X-Tableau-Auth": token } }   // no Accept header — endpoint returns CSV natively (avoids HTTP 406)
+      { headers: { "X-Tableau-Auth": token } }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const csv = await res.text();
     const parsed = parseCompanyBreakdown(csv, dim.label);
     if (!parsed || parsed.rowCount === 0) {
-      console.warn(`⚠️  ${tag}: 0 rows — check filter names/values`);
+      console.warn(`⚠️  ${tag}: 0 rows`);
     } else {
       console.log(`✅ ${tag}: ${parsed.rowCount} rows`);
     }
@@ -364,46 +359,7 @@ async function fetchTableauData() {
   const auth = await tableauAuth();
   if (!auth) return null;
   const { token, siteId } = auth;
-  const { server, view, dimensions } = TABLEAU_CONFIG;
-
-  // ── DIAGNOSTIC: try several parameter-name spellings to find which populates the dimension ──
-  try {
-    const { filters } = TABLEAU_CONFIG;
-    const { start, end } = getFilterDateRange();
-    const baseVf = {
-      [filters.residencyField]:  filters.residencyValue,
-      [filters.startDateField]:  start,
-      [filters.endDateField]:    end,
-      [filters.comparisonField]: filters.comparisonValue,
-      [filters.splitField]:      filters.splitValues.domestic,
-    };
-    // Candidate parameter names to try for the dimension selector
-    const candidates = [
-      "Custom Dimension 1", "Custom Dimension1", "CustomDimension1",
-      "Parameter 1", "Dimension 1", "p.Custom Dimension 1", "Custom Dim 1",
-    ];
-    for (const cand of candidates) {
-      const vf = { ...baseVf, [cand]: "Destination Level 1" };
-      const qs = Object.entries(vf).map(([k,v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
-      const r = await fetch(
-        `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${view}/data?${qs}`,
-        { headers: { "X-Tableau-Auth": token } }
-      );
-      if (!r.ok) { console.log(`   param "${cand}": HTTP ${r.status}`); continue; }
-      const txt = await r.text();
-      const rows = txt.split(/\r?\n/);
-      // Check if Custom Dimension 1 column (col 0) now has real values in first few rows
-      const sample = rows.slice(1, 6).map(x => (x.split(",")[0]||"").trim()).filter(Boolean);
-      const populated = sample.some(s => s && s !== "-" && s.toLowerCase() !== "null");
-      console.log(`   param "${cand}": ${populated ? "✅ POPULATED → "+sample.slice(0,3).join("/") : "blank"}`);
-      if (populated) {
-        console.log(`🔍 DIAG: WINNER parameter name = "${cand}"`);
-        break;
-      }
-    }
-  } catch (e) {
-    console.warn(`🔍 DIAG param-probe error: ${e.message}`);
-  }
+  const { customViews, dimensions } = TABLEAU_CONFIG;
 
   const out = {
     domestic:    { destinationL1: null, city: null, activity: null },
@@ -412,8 +368,8 @@ async function fetchTableauData() {
   };
 
   for (const dim of dimensions) {
-    out.domestic[dim.key]    = await pullViewBreakdown(token, siteId, view, dim, "domestic");
-    out.crossBorder[dim.key] = await pullViewBreakdown(token, siteId, view, dim, "crossBorder");
+    out.domestic[dim.key]    = await pullViewBreakdown(token, siteId, customViews.domestic[dim.key],    dim, "Domestic");
+    out.crossBorder[dim.key] = await pullViewBreakdown(token, siteId, customViews.crossBorder[dim.key], dim, "Cross-Border");
   }
 
   const any = [...Object.values(out.domestic), ...Object.values(out.crossBorder)]
