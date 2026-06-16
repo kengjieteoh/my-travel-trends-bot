@@ -361,30 +361,27 @@ async function fetchTableauData() {
   const { token, siteId } = auth;
   const { server, customViews, dimensions } = TABLEAU_CONFIG;
 
-  // ── DIAGNOSTIC: test one Custom View — bare (no filter) vs with date filter ──
-  const testId = customViews.domestic.destinationL1;
+  // ── DIAGNOSTIC: list custom views on the site to get their REAL API IDs + the base view they belong to ──
   try {
-    const bare = await fetch(
-      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${testId}/data`,
-      { headers: { "X-Tableau-Auth": token } }
+    const cvRes = await fetch(
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/customviews?pageSize=1000`,
+      { headers: { "X-Tableau-Auth": token, "Accept": "application/json" } }
     );
-    console.log(`🔍 DIAG custom-view BARE pull: HTTP ${bare.status}`);
-    if (bare.ok) {
-      const txt = await bare.text();
-      const rows = txt.split(/\r?\n/);
-      console.log(`     headers: ${(rows[0]||"").slice(0,300)}`);
-      rows.slice(1,5).forEach((r,i) => console.log(`     [${i}] ${r.slice(0,250)}`));
+    console.log(`🔍 DIAG list-customviews: HTTP ${cvRes.status}`);
+    if (cvRes.ok) {
+      const j = await cvRes.json();
+      const cvs = j?.customViews?.customView || [];
+      console.log(`🔍 DIAG: ${cvs.length} custom views found. Matches:`);
+      cvs.filter(c => /domestic|cross|border|destination|activity|city/i.test(c.name||""))
+        .slice(0, 20)
+        .forEach(c => console.log(`     • "${c.name}"  cvId=${c.id}  baseViewId=${c.view?.id}`));
+    } else {
+      const errTxt = await cvRes.text();
+      console.warn(`     body: ${errTxt.slice(0,200)}`);
     }
-  } catch (e) { console.warn(`🔍 DIAG bare error: ${e.message}`); }
-
-  try {
-    const { start, end } = getFilterDateRange();
-    const withDate = await fetch(
-      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${testId}/data?vf_${encodeURIComponent("Start Date")}=${start}&vf_${encodeURIComponent("End Date")}=${end}`,
-      { headers: { "X-Tableau-Auth": token } }
-    );
-    console.log(`🔍 DIAG custom-view WITH-DATE pull: HTTP ${withDate.status}`);
-  } catch (e) { console.warn(`🔍 DIAG date error: ${e.message}`); }
+  } catch (e) {
+    console.warn(`🔍 DIAG list-customviews error: ${e.message}`);
+  }
 
   const out = {
     domestic:    { destinationL1: null, city: null, activity: null },
