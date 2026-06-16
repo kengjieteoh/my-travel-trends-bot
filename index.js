@@ -27,9 +27,11 @@ const TABLEAU_CONFIG = {
   patName:   process.env.TABLEAU_PAT_NAME  || "",          // Personal Access Token name
   patSecret: process.env.TABLEAU_PAT_SECRET|| "",          // Personal Access Token secret
 
+  // Base view that all 6 custom views hang off (confirmed via list-customviews).
+  baseView: process.env.TABLEAU_BASE_VIEW || "0208cd01-2ede-4f19-a5dc-967da9950ab8",
+
   // ── 6 CUSTOM VIEWS ──
-  // Each Custom View has the parameter (Custom Dimension 1) + split baked in.
-  // The bot pulls each by ID and overlays only the weekly date filter.
+  // Applied to the base view via the :customViewId query param (NOT by hitting the GUID directly).
   customViews: {
     domestic: {
       destinationL1: process.env.TABLEAU_VIEW_DOM_DEST1 || "89ba8b21-3b4c-4003-91cc-64b408848013",
@@ -311,23 +313,24 @@ function getFilterDateRange() {
  * Pull one view's data for one dimension grain, applying all filters via vf_ params.
  * Returns parsed breakdown, or null on failure.
  */
-async function pullViewBreakdown(token, siteId, viewId, dim, splitName) {
-  const { server, filters } = TABLEAU_CONFIG;
+async function pullViewBreakdown(token, siteId, customViewId, dim, splitName) {
+  const { server, baseView, filters } = TABLEAU_CONFIG;
   const { start, end } = getFilterDateRange();
 
-  // Only overlay the date window — parameter, split, residency, comparison are baked into the Custom View.
-  const vf = {
-    [filters.startDateField]: start,
-    [filters.endDateField]:   end,
+  // Hit the BASE view, apply the custom view via :customViewId, overlay the date window.
+  const params = {
+    ":customViewId":          customViewId,
+    [`vf_${filters.startDateField}`]: start,
+    [`vf_${filters.endDateField}`]:   end,
   };
-  const qs = Object.entries(vf)
-    .map(([k, v]) => `vf_${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+  const qs = Object.entries(params)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join("&");
 
   const tag = `${splitName} · ${dim.label}`;
   try {
     const res = await fetch(
-      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${viewId}/data?${qs}`,
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${baseView}/data?${qs}`,
       { headers: { "X-Tableau-Auth": token } }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -359,29 +362,29 @@ async function fetchTableauData() {
   const auth = await tableauAuth();
   if (!auth) return null;
   const { token, siteId } = auth;
-  const { server, customViews, dimensions } = TABLEAU_CONFIG;
+  const { server, baseView, customViews, dimensions, filters } = TABLEAU_CONFIG;
 
-  // ── DIAGNOSTIC: list custom views on the site to get their REAL API IDs + the base view they belong to ──
+  // ── DIAGNOSTIC: confirm base-view + :customViewId pattern works, show populated data ──
   try {
-    const cvRes = await fetch(
-      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/customviews?pageSize=1000`,
-      { headers: { "X-Tableau-Auth": token, "Accept": "application/json" } }
+    const { start, end } = getFilterDateRange();
+    const cvId = customViews.domestic.destinationL1;
+    const qs = [
+      `:customViewId=${encodeURIComponent(cvId)}`,
+      `vf_${encodeURIComponent(filters.startDateField)}=${start}`,
+      `vf_${encodeURIComponent(filters.endDateField)}=${end}`,
+    ].join("&");
+    const r = await fetch(
+      `${server}/api/${TABLEAU_API_VERSION}/sites/${siteId}/views/${baseView}/data?${qs}`,
+      { headers: { "X-Tableau-Auth": token } }
     );
-    console.log(`🔍 DIAG list-customviews: HTTP ${cvRes.status}`);
-    if (cvRes.ok) {
-      const j = await cvRes.json();
-      const cvs = j?.customViews?.customView || [];
-      console.log(`🔍 DIAG: ${cvs.length} custom views found. Matches:`);
-      cvs.filter(c => /domestic|cross|border|destination|activity|city/i.test(c.name||""))
-        .slice(0, 20)
-        .forEach(c => console.log(`     • "${c.name}"  cvId=${c.id}  baseViewId=${c.view?.id}`));
-    } else {
-      const errTxt = await cvRes.text();
-      console.warn(`     body: ${errTxt.slice(0,200)}`);
+    console.log(`🔍 DIAG base+customView pull: HTTP ${r.status}`);
+    if (r.ok) {
+      const txt = await r.text();
+      const rows = txt.split(/\r?\n/);
+      console.log(`     headers: ${(rows[0]||"").slice(0,300)}`);
+      rows.slice(1,6).forEach((x,i) => console.log(`     [${i}] ${x.slice(0,250)}`));
     }
-  } catch (e) {
-    console.warn(`🔍 DIAG list-customviews error: ${e.message}`);
-  }
+  } catch (e) { console.warn(`🔍 DIAG error: ${e.message}`); }
 
   const out = {
     domestic:    { destinationL1: null, city: null, activity: null },
