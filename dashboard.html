@@ -249,8 +249,9 @@ function startAutoRefresh() {
 
 const fmtVal = n => n >= 1000000 ? "$"+(n/1000000).toFixed(1)+"M" : n >= 1000 ? "$"+(n/1000).toFixed(0)+"K" : String(n||0);
 const coChg = v => {
-  const up = (v||0) >= 0;
-  return `<span class="co-rank-chg ${up?"up":"dn"}">${up?"▲":"▼"}${Math.abs(v||0)}%</span>`;
+  const pct = Math.round((v || 0) * 100);  // VS values are decimal fractions (0.55 = 55%)
+  const up = pct >= 0;
+  return `<span class="co-rank-chg ${up?"up":"dn"}">${up?"▲":"▼"}${Math.abs(pct)}%</span>`;
 };
 
 function rankList(arr) {
@@ -290,10 +291,8 @@ let coActiveSplit = "domestic";
 
 function splitGroups(co, which) {
   const g = co[which] || {};
-  return `
-    ${dimGroup(g.destinationL1, "Destination Level 1")}
-    ${dimGroup(g.city,          "Destination City")}
-    ${dimGroup(g.activity,      "Activity")}`;
+  // Only Destination Level 1 shipped for now (City/Activity await BigQuery).
+  return `${dimGroup(g.destinationL1, "Destination Level 1")}`;
 }
 
 function renderCompanySection(co) {
