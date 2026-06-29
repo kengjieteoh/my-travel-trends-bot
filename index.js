@@ -31,17 +31,14 @@ const TABLEAU_CONFIG = {
   baseView: process.env.TABLEAU_BASE_VIEW || "0208cd01-2ede-4f19-a5dc-967da9950ab8",
 
   // ── 6 CUSTOM VIEWS ──
-  // Applied to the base view via the :customViewId query param (NOT by hitting the GUID directly).
+  // NOTE: Custom views don't persist the Custom Dimension 1 parameter, so City/Activity
+  // currently duplicate Destination Level 1. Only L1 is shipped until BigQuery is wired in.
   customViews: {
     domestic: {
       destinationL1: process.env.TABLEAU_VIEW_DOM_DEST1 || "89ba8b21-3b4c-4003-91cc-64b408848013",
-      city:          process.env.TABLEAU_VIEW_DOM_CITY  || "3eed9b00-6f15-47b7-8732-b81746398782",
-      activity:      process.env.TABLEAU_VIEW_DOM_ACT   || "4b93735b-a022-46b9-ac25-16f55f1b15a2",
     },
     crossBorder: {
       destinationL1: process.env.TABLEAU_VIEW_XB_DEST1  || "4eddb6af-05ca-4f79-9e24-a24c5087e0f4",
-      city:          process.env.TABLEAU_VIEW_XB_CITY   || "773e07b7-de9f-497e-807a-7d4dad82ab72",
-      activity:      process.env.TABLEAU_VIEW_XB_ACT    || "f5b25a2e-b320-4d30-b892-80ff11ed1bcf",
     },
   },
 
@@ -51,11 +48,9 @@ const TABLEAU_CONFIG = {
     endDateField:   "End Date",
   },
 
-  // Dimension grains (label only used for logging now — parameter is baked into each view)
+  // Single dimension shipped for now (Destination Level 1). City/Activity await BigQuery.
   dimensions: [
     { key: "destinationL1", label: "Destination Level 1" },
-    { key: "city",          label: "Destination City" },
-    { key: "activity",      label: "Activity" },
   ],
 };
 
@@ -387,8 +382,8 @@ async function fetchTableauData() {
   } catch (e) { console.warn(`🔍 DIAG error: ${e.message}`); }
 
   const out = {
-    domestic:    { destinationL1: null, city: null, activity: null },
-    crossBorder: { destinationL1: null, city: null, activity: null },
+    domestic:    { destinationL1: null },
+    crossBorder: { destinationL1: null },
     dateRange:   getFilterDateRange(),
   };
 
@@ -685,7 +680,11 @@ function buildLarkCard(data, weekLabel, upcomingEvents, companyData, opts = {}) 
     );
   } else if (companyData && companyData.domestic) {
     const fmtVal = n => n >= 1000000 ? "$"+(n/1000000).toFixed(1)+"M" : n >= 1000 ? "$"+(n/1000).toFixed(0)+"K" : String(n);
-    const chg = v => v >= 0 ? `▲${Math.abs(v)}%` : `▼${Math.abs(v)}%`;
+    // VS values are decimal fractions (0.55 = 55%). Convert to whole-number percent.
+    const chg = v => {
+      const pct = Math.round((v || 0) * 100);
+      return pct >= 0 ? `▲${pct}%` : `▼${Math.abs(pct)}%`;
+    };
 
     // One ranked list → markdown (respects topN from size guard)
     const list = (arr) => (arr||[]).slice(0, topN).map((r,i) =>
@@ -713,18 +712,14 @@ function buildLarkCard(data, weekLabel, upcomingEvents, companyData, opts = {}) 
 
     companyElements.push(
       { tag:"hr" },
-      { tag:"div", text:{ tag:"lark_md", content:`**🏢 Company Travel — Residency: MY · ${dr.start||""} → ${dr.end||""} (WoW)**` } },
+      { tag:"div", text:{ tag:"lark_md", content:`**🏢 Company Travel — Residency: MY · ${dr.start||""} → ${dr.end||""} (WoW)**\n_Top 5 by Destination Level 1_` } },
 
       { tag:"div", text:{ tag:"lark_md", content:"**🏠 DOMESTIC**" } },
       ...dimBlock(companyData.domestic.destinationL1, "Destination Level 1"),
-      ...dimBlock(companyData.domestic.city,          "Destination City"),
-      ...dimBlock(companyData.domestic.activity,      "Activity"),
 
       { tag:"hr" },
       { tag:"div", text:{ tag:"lark_md", content:"**✈️ OUTBOUND (Cross-Border)**" } },
       ...dimBlock(companyData.crossBorder.destinationL1, "Destination Level 1"),
-      ...dimBlock(companyData.crossBorder.city,          "Destination City"),
-      ...dimBlock(companyData.crossBorder.activity,      "Activity"),
 
       { tag:"div", text:{ tag:"lark_md", content:`**📊 Company vs Market**\n${vsMarket.join("\n")||"_n/a_"}` } },
     );
