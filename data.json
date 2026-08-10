@@ -7,9 +7,57 @@
   "topActivity": "Snorkelling tour",
   "domestic": [
     {
-      "destination": "Kota Kinabalu",
-      "state": "Sabah",
-      "category": "beach",
+      "destination": "Penang",
+      "state": "Penang",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 88,
+      "change": 31,
+      "volume": 88,
+      "reason": "Seasonal peak — popular city destination"
+    },
+    {
+      "destination": "Johor Bahru",
+      "state": "Johor",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 84,
+      "change": 20,
+      "volume": 84,
+      "reason": "Seasonal peak — popular city destination"
+    },
+    {
+      "destination": "Kota Bharu",
+      "state": "Kelantan",
+      "category": "culture",
       "peak": [
         3,
         4,
@@ -20,39 +68,16 @@
         9
       ],
       "offpeak": [
-        1,
-        2,
         10,
         11,
-        12
-      ],
-      "score": 87,
-      "change": 27,
-      "volume": 87,
-      "reason": "Seasonal peak — popular beach destination"
-    },
-    {
-      "destination": "Sabah",
-      "state": "Sabah",
-      "category": "nature",
-      "peak": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        8
-      ],
-      "offpeak": [
+        12,
         1,
-        2,
-        11,
-        12
+        2
       ],
       "score": 84,
-      "change": 39,
+      "change": 30,
       "volume": 84,
-      "reason": "Seasonal peak — popular nature destination"
+      "reason": "Seasonal peak — popular culture destination"
     },
     {
       "destination": "Kuala Terengganu",
@@ -74,9 +99,9 @@
         1,
         2
       ],
-      "score": 83,
-      "change": 28,
-      "volume": 83,
+      "score": 76,
+      "change": 30,
+      "volume": 76,
       "reason": "Seasonal peak — popular heritage destination"
     },
     {
@@ -99,62 +124,13 @@
         11,
         12
       ],
-      "score": 79,
-      "change": 18,
-      "volume": 79,
+      "score": 74,
+      "change": -1,
+      "volume": 74,
       "reason": "Seasonal peak — popular heritage destination"
-    },
-    {
-      "destination": "Cameron Highlands",
-      "state": "Pahang",
-      "category": "nature",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
-      "offpeak": [],
-      "score": 78,
-      "change": -5,
-      "volume": 78,
-      "reason": "Seasonal peak — popular nature destination"
     }
   ],
   "international": [
-    {
-      "destination": "Singapore",
-      "country": "Singapore",
-      "countryCode": "SG",
-      "category": "city",
-      "peak": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
-      "offpeak": [],
-      "score": 89,
-      "change": 4,
-      "volume": 89,
-      "reason": "Trending — popular city destination"
-    },
     {
       "destination": "Bali",
       "country": "Indonesia",
@@ -176,10 +152,35 @@
         4,
         5
       ],
-      "score": 87,
-      "change": 1,
-      "volume": 87,
+      "score": 86,
+      "change": 9,
+      "volume": 86,
       "reason": "Trending — popular beach destination"
+    },
+    {
+      "destination": "Singapore",
+      "country": "Singapore",
+      "countryCode": "SG",
+      "category": "city",
+      "peak": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "offpeak": [],
+      "score": 80,
+      "change": 4,
+      "volume": 80,
+      "reason": "Trending — popular city destination"
     },
     {
       "destination": "Phuket",
@@ -203,35 +204,9 @@
         10
       ],
       "score": 44,
-      "change": 28,
+      "change": 12,
       "volume": 44,
       "reason": "Trending — popular beach destination"
-    },
-    {
-      "destination": "Dubai",
-      "country": "UAE",
-      "countryCode": "AE",
-      "category": "city",
-      "peak": [
-        10,
-        11,
-        12,
-        1,
-        2,
-        3,
-        4
-      ],
-      "offpeak": [
-        5,
-        6,
-        7,
-        8,
-        9
-      ],
-      "score": 43,
-      "change": 5,
-      "volume": 43,
-      "reason": "Trending — popular city destination"
     },
     {
       "destination": "Tokyo",
@@ -254,10 +229,36 @@
         8,
         12
       ],
-      "score": 41,
-      "change": -5,
-      "volume": 41,
+      "score": 38,
+      "change": 29,
+      "volume": 38,
       "reason": "Trending — popular city destination"
+    },
+    {
+      "destination": "Istanbul",
+      "country": "Turkey",
+      "countryCode": "TR",
+      "category": "culture",
+      "peak": [
+        4,
+        5,
+        6,
+        9,
+        10,
+        11
+      ],
+      "offpeak": [
+        1,
+        2,
+        3,
+        7,
+        8,
+        12
+      ],
+      "score": 32,
+      "change": -9,
+      "volume": 32,
+      "reason": "Trending — popular culture destination"
     }
   ],
   "domesticActivities": [
@@ -274,8 +275,8 @@
         9
       ],
       "score": 80,
-      "change": 27,
-      "volume": 81
+      "change": 18,
+      "volume": 57
     },
     {
       "name": "Mt. Kinabalu climb",
@@ -289,8 +290,8 @@
         8
       ],
       "score": 80,
-      "change": 32,
-      "volume": 60
+      "change": 10,
+      "volume": 69
     },
     {
       "name": "Penang food walk",
@@ -310,8 +311,8 @@
         12
       ],
       "score": 80,
-      "change": 35,
-      "volume": 77
+      "change": 30,
+      "volume": 58
     }
   ],
   "internationalActivities": [
@@ -330,8 +331,8 @@
         12
       ],
       "score": 80,
-      "change": 19,
-      "volume": 79
+      "change": 42,
+      "volume": 52
     },
     {
       "name": "Bali rice terrace cycling",
@@ -344,8 +345,8 @@
         10
       ],
       "score": 80,
-      "change": 19,
-      "volume": 60
+      "change": 12,
+      "volume": 55
     },
     {
       "name": "Harajuku street food tour",
@@ -361,8 +362,8 @@
         10
       ],
       "score": 80,
-      "change": 28,
-      "volume": 52
+      "change": 37,
+      "volume": 53
     }
   ],
   "domCategories": {
@@ -408,14 +409,14 @@
     }
   ],
   "dataSource": "calendar",
-  "weekLabel": "27 Jul 2026 – 2 Aug 2026",
+  "weekLabel": "3 Aug 2026 – 9 Aug 2026",
   "upcomingEvents": [
     {
       "name": "Maulidur Rasul",
       "date": "2026-08-25",
       "season": "maulidur",
       "kind": "public_holiday",
-      "daysAway": 22
+      "daysAway": 15
     },
     {
       "name": "Term 2 break",
@@ -423,14 +424,14 @@
       "end": "2026-09-06",
       "group": "B",
       "kind": "school_break",
-      "daysAway": 26
+      "daysAway": 19
     },
     {
       "name": "Hari Kebangsaan",
       "date": "2026-08-31",
       "season": "merdeka",
       "kind": "public_holiday",
-      "daysAway": 28
+      "daysAway": 21
     }
   ],
   "companyData": {
@@ -440,83 +441,83 @@
         "rowCount": 24,
         "byNetSales": [
           {
-            "name": "All",
-            "value": 911,
-            "change": 0.295632888
-          },
-          {
-            "name": "IT",
-            "value": 571.869035086,
-            "change": 0.04125799
-          },
-          {
-            "name": "MY",
-            "value": 553,
-            "change": 0.226205953
-          },
-          {
-            "name": "IN",
-            "value": 512.417538825,
-            "change": 0.501173043
-          },
-          {
             "name": "JP",
-            "value": 70,
-            "change": 0.308658658
+            "value": 349,
+            "change": 0.14019183
+          },
+          {
+            "name": "SG",
+            "value": 215,
+            "change": 0.281430907
+          },
+          {
+            "name": "VN",
+            "value": 186,
+            "change": 0.261965624
+          },
+          {
+            "name": "CN",
+            "value": 180,
+            "change": 0.572376646
+          },
+          {
+            "name": "ANZ",
+            "value": 156,
+            "change": 0.577697488
           }
         ],
         "byNetBooking": [
           {
-            "name": "VN",
-            "value": 789,
-            "change": 0.408928571
+            "name": "ANZ",
+            "value": 972,
+            "change": 0.408695652
           },
           {
-            "name": "TH",
-            "value": 762,
-            "change": 0.298126065
+            "name": "HK",
+            "value": 584,
+            "change": -0.068580542
           },
           {
-            "name": "ID",
-            "value": 739,
-            "change": 0.201626016
+            "name": "RoEU",
+            "value": 323,
+            "change": 0.045307443
           },
           {
-            "name": "JP",
-            "value": 664,
-            "change": 0.175221239
+            "name": "ME",
+            "value": 306,
+            "change": 0.172413793
           },
           {
-            "name": "SG",
-            "value": 660,
-            "change": 0.18491921
+            "name": "FR",
+            "value": 212,
+            "change": 0.367741935
           }
         ],
         "byActivitySession": [
           {
-            "name": "CH",
-            "value": 787,
-            "change": 0.218266254
+            "name": "JP",
+            "value": 116,
+            "change": 0.07511537
           },
           {
-            "name": "ES",
-            "value": 597,
-            "change": 0.428229665
+            "name": "VN",
+            "value": 69,
+            "change": 0.058189361
           },
           {
-            "name": "IN",
-            "value": 423,
-            "change": 0.281818182
+            "name": "CN",
+            "value": 65,
+            "change": -0.106746968
           },
           {
-            "name": "DE",
-            "value": 397,
-            "change": 1.169398907
+            "name": "SG",
+            "value": 62,
+            "change": 0.093548614
           },
           {
-            "name": "All",
-            "value": 361,
-            "change": 0.108506375
+            "name": "TH",
+            "value": 61,
+            "change": 0.081757223
           }
         ]
       }
@@ -527,95 +528,95 @@
         "rowCount": 24,
         "byNetSales": [
           {
-            "name": "All",
-            "value": 911,
-            "change": 0.295632888
-          },
-          {
-            "name": "IT",
-            "value": 571.869035086,
-            "change": 0.04125799
-          },
-          {
-            "name": "MY",
-            "value": 553,
-            "change": 0.226205953
-          },
-          {
-            "name": "IN",
-            "value": 512.417538825,
-            "change": 0.501173043
-          },
-          {
             "name": "JP",
-            "value": 70,
-            "change": 0.308658658
+            "value": 349,
+            "change": 0.14019183
+          },
+          {
+            "name": "SG",
+            "value": 215,
+            "change": 0.281430907
+          },
+          {
+            "name": "VN",
+            "value": 186,
+            "change": 0.261965624
+          },
+          {
+            "name": "CN",
+            "value": 180,
+            "change": 0.572376646
+          },
+          {
+            "name": "ANZ",
+            "value": 156,
+            "change": 0.577697488
           }
         ],
         "byNetBooking": [
           {
-            "name": "VN",
-            "value": 789,
-            "change": 0.408928571
+            "name": "ANZ",
+            "value": 972,
+            "change": 0.408695652
           },
           {
-            "name": "TH",
-            "value": 762,
-            "change": 0.298126065
+            "name": "HK",
+            "value": 584,
+            "change": -0.068580542
           },
           {
-            "name": "ID",
-            "value": 739,
-            "change": 0.201626016
+            "name": "RoEU",
+            "value": 323,
+            "change": 0.045307443
           },
           {
-            "name": "JP",
-            "value": 664,
-            "change": 0.175221239
+            "name": "ME",
+            "value": 306,
+            "change": 0.172413793
           },
           {
-            "name": "SG",
-            "value": 660,
-            "change": 0.18491921
+            "name": "FR",
+            "value": 212,
+            "change": 0.367741935
           }
         ],
         "byActivitySession": [
           {
-            "name": "CH",
-            "value": 787,
-            "change": 0.218266254
+            "name": "JP",
+            "value": 116,
+            "change": 0.07511537
           },
           {
-            "name": "ES",
-            "value": 597,
-            "change": 0.428229665
+            "name": "VN",
+            "value": 69,
+            "change": 0.058189361
           },
           {
-            "name": "IN",
-            "value": 423,
-            "change": 0.281818182
+            "name": "CN",
+            "value": 65,
+            "change": -0.106746968
           },
           {
-            "name": "DE",
-            "value": 397,
-            "change": 1.169398907
+            "name": "SG",
+            "value": 62,
+            "change": 0.093548614
           },
           {
-            "name": "All",
-            "value": 361,
-            "change": 0.108506375
+            "name": "TH",
+            "value": 61,
+            "change": 0.081757223
           }
         ]
       }
     },
     "dateRange": {
-      "start": "2026-07-27",
-      "end": "2026-08-02"
+      "start": "2026-08-03",
+      "end": "2026-08-09"
     },
     "vsMarket": [
-      "📌 Market top domestic: **Kota Kinabalu** · company: **All**",
-      "📌 Market top outbound: **Singapore** · company: **All**"
+      "📌 Market top domestic: **Penang** · company: **JP**",
+      "📌 Market top outbound: **Bali** · company: **JP**"
     ]
   },
-  "updatedAt": "2026-08-03T04:29:08.326Z"
+  "updatedAt": "2026-08-10T03:11:06.231Z"
 }
